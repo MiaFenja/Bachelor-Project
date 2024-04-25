@@ -6,57 +6,59 @@ mydb = mysql.connector.connect(
 )
 ocelbase = "OCEL"
 c = mydb.cursor()
-c.execute("drop database if exists testing1")
-c.execute("Create database testing1")
-c.execute("use testing1")
+c.execute("DROP DATABASE IF EXISTS testing1")
+c.execute("CREATE DATABASE testing1")
+c.execute("USE testing1")
 
 def create_event_Ocel(c):
     c.execute("""CREATE TABLE event_ (
-                    eventID varchar(50), 
-                    eventType Text, 
+                    eventID VARCHAR(50), 
+                    eventType TEXT, 
                     eventTime DATETIME, 
                     PRIMARY KEY (eventID))""")
     
-    c.execute(f"""select table_name from information_schema.tables 
-                  where table_name in (select concat('event_',ocel_type_map) 
-                  from {ocelbase}.event_map_type)""")
+    c.execute(f"""SELECT table_name FROM information_schema.tables 
+                  WHERE table_name IN (SELECT CONCAT('event_',ocel_type_map) 
+                  FROM {ocelbase}.event_map_type)""")
     
     names = c.fetchall()
     print(names)
     for t in names:
-        c.execute(f"""insert into event_ select ocel_id as eventID, ocel_type as eventType, 
-                      ocel_time as eventTime from {ocelbase}.{t[0]} NATURAL left join {ocelbase}.event_ 
-                      where {ocelbase}.event_.ocel_id = {ocelbase}.{t[0]}.ocel_id""")
+        c.execute(f"""INSERT INTO event_ SELECT ocel_id AS eventID, ocel_type AS eventType, 
+                      ocel_time AS eventTime FROM {ocelbase}.{t[0]} NATURAL LEFT JOIN {ocelbase}.event_ 
+                      WHERE {ocelbase}.event_.ocel_id = {ocelbase}.{t[0]}.ocel_id""")
 
 def create_objectObject_Ocel(c):
-    c.execute("""create table objectObject (
-                    objectObjectID bigINT not NULL auto_increment,
-                    fromObjectID varchar(50), 
-                    toObjectID  varchar(50), 
-                    objectRelationType varchar(50),
-                    primary key(objectObjectID))""")
+    c.execute("""CREATE TABLE objectObject (
+                    objectObjectID BIGINT NOT NULL AUTO_INCREMENT,
+                    fromObjectID VARCHAR(50), 
+                    toObjectID  VARCHAR(50), 
+                    objectRelationType VARCHAR(50),
+                    PRIMARY KEY (objectObjectID))""")
     
-    c.execute(f"""insert into objectObject(fromObjectID,toObjectID,objectRelationType) 
-                  select {ocelbase}.object_object.ocel_source as fromObjectID, 
-                  {ocelbase}.object_object.ocel_target as toObjectID, 
-                  {ocelbase}.object_object.ocel_qualifier as objectRelationType 
-                  from {ocelbase}.object_object left join {ocelbase}.event_object 
-                  on {ocelbase}.event_object.ocel_object = {ocelbase}.object_object.ocel_target 
-                  or {ocelbase}.event_object.ocel_object = {ocelbase}.object_object.ocel_source""")
+    c.execute(f"""INSERT INTO objectObject(fromObjectID,toObjectID,objectRelationType) 
+                  SELECT {ocelbase}.object_object.ocel_source AS fromObjectID, 
+                  {ocelbase}.object_object.ocel_target AS toObjectID, 
+                  {ocelbase}.object_object.ocel_qualifier AS objectRelationType 
+                  FROM {ocelbase}.object_object LEFT JOIN {ocelbase}.event_object 
+                  ON {ocelbase}.event_object.ocel_object = {ocelbase}.object_object.ocel_target 
+                  OR {ocelbase}.event_object.ocel_object = {ocelbase}.object_object.ocel_source""")
 
 def create_eventObject_Ocel(c):
-    c.execute("""create table eventObject (
-                    eventID varchar(50), 
-                    objectID varchar(50),
-                    OEqualifier Text, 
-                    primary key(eventID,objectID))""")
+    c.execute("""CREATE TABLE eventObject (
+                    eventID VARCHAR(50), 
+                    objectID VARCHAR(50),
+                    OEqualifier TEXT, 
+                    PRIMARY KEY (eventID,objectID))""")
     
-    c.execute(f"""insert into eventObject select {ocelbase}.event_object.ocel_event as eventID, 
-                  {ocelbase}.event_object.ocel_object as objectID, {ocelbase}.event_object.ocel_qualifier as OEqualifier 
-                  from {ocelbase}.event_object""")
+    c.execute(f"""INSERT INTO eventObject 
+                  SELECT {ocelbase}.event_object.ocel_event AS eventID, 
+                  {ocelbase}.event_object.ocel_object AS objectID, 
+                  {ocelbase}.event_object.ocel_qualifier AS OEqualifier 
+                  FROM {ocelbase}.event_object""")
 
 create_event_Ocel(c)
 create_objectObject_Ocel(c)
 create_eventObject_Ocel(c)
-c.execute("select * from eventObject")
+c.execute("SELECT * FROM eventObject")
 print(c.fetchall())
