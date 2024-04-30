@@ -1,8 +1,8 @@
 import mysql.connector
 mydb = mysql.connector.connect(
   host="localhost",
-  user="admin",
-  password="1234",
+  user="root",
+  password="1234"
 )
 ocelbase = "OCEL"
 c = mydb.cursor()
@@ -13,7 +13,7 @@ c.execute("USE testing1")
 def create_event_Ocel(c):
     c.execute("""CREATE TABLE event_ (
                     eventID VARCHAR(50), 
-                    eventType TEXT, 
+                    eventTypeID BIGINT, 
                     eventTime DATETIME, 
                     PRIMARY KEY (eventID))""")
     
@@ -22,11 +22,30 @@ def create_event_Ocel(c):
                   FROM {ocelbase}.event_map_type)""")
     
     names = c.fetchall()
-    print(names)
+    c.execute("""CREATE TABLE
+              temporaryTable(
+              ocel_id varchar(50), 
+              eventType varchar(50),
+              ocel_time DATETIME)""")
     for t in names:
-        c.execute(f"""INSERT INTO event_ SELECT ocel_id AS eventID, ocel_type AS eventType, 
-                      ocel_time AS eventTime FROM {ocelbase}.{t[0]} NATURAL LEFT JOIN {ocelbase}.event_ 
-                      WHERE {ocelbase}.event_.ocel_id = {ocelbase}.{t[0]}.ocel_id""")
+         c.execute(f"""INSERT INTO temporaryTable 
+                   SELECT ocel_id,
+                   ocel_type AS eventType,
+                   ocel_time 
+                   FROM {ocelbase}.{t[0]}
+                   NATURAL LEFT JOIN {ocelbase}.event_""")
+
+    
+    c.execute("""INSERT INTO event_ SELECT 
+              ocel_id AS eventID, 
+              eventTypeID,
+              ocel_time AS eventTime from
+              temporaryTable LEFT JOIN eventType 
+              on temporaryTable.eventType = eventType.eventType""")
+    c.execute("DROP TABLE temporaryTable")
+
+       
+        
 
 def create_objectObject_Ocel(c):
     c.execute("""CREATE TABLE objectObject (
@@ -56,9 +75,16 @@ def create_eventObject_Ocel(c):
                   {ocelbase}.event_object.ocel_object AS objectID, 
                   {ocelbase}.event_object.ocel_qualifier AS OEqualifier 
                   FROM {ocelbase}.event_object""")
-
-create_event_Ocel(c)
+def create_eventType_Ocel(c):
+    c.execute("""CREATE TABLE eventType (
+                eventTypeID BIGINT NOT NULL AUTO_INCREMENT,
+                eventType varchar(50),
+                primary key(eventTypeID))
+    """)
+    c.execute(f"""INSERT INTO eventType(eventType) 
+              SELECT ocel_type from {ocelbase}.event_map_type""")
+create_eventType_Ocel(c)
 create_objectObject_Ocel(c)
 create_eventObject_Ocel(c)
-c.execute("SELECT * FROM eventObject")
-print(c.fetchall())
+create_event_Ocel(c)
+
