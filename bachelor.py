@@ -1,7 +1,7 @@
 import mysql.connector
 mydb = mysql.connector.connect(
   host="localhost",
-  user="root",
+  user="admin",
   password="1234"
 )
 ocelbase = "OCEL"
@@ -9,6 +9,15 @@ c = mydb.cursor()
 c.execute("DROP DATABASE IF EXISTS testing1")
 c.execute("CREATE DATABASE testing1")
 c.execute("USE testing1")
+
+def create_eventType_Ocel(c):
+    c.execute("""CREATE TABLE eventType (
+                eventTypeID BIGINT NOT NULL AUTO_INCREMENT,
+                eventType varchar(50),
+                primary key(eventTypeID))
+    """)
+    c.execute(f"""INSERT INTO eventType(eventType) 
+              SELECT ocel_type from {ocelbase}.event_map_type""")
 
 def create_event_Ocel(c):
     c.execute("""CREATE TABLE event_ (
@@ -44,7 +53,7 @@ def create_event_Ocel(c):
               on temporaryTable.eventType = eventType.eventType""")
     c.execute("DROP TABLE temporaryTable")
 
-       
+
         
 
 def create_objectObject_Ocel(c):
@@ -75,16 +84,81 @@ def create_eventObject_Ocel(c):
                   {ocelbase}.event_object.ocel_object AS objectID, 
                   {ocelbase}.event_object.ocel_qualifier AS OEqualifier 
                   FROM {ocelbase}.event_object""")
-def create_eventType_Ocel(c):
-    c.execute("""CREATE TABLE eventType (
-                eventTypeID BIGINT NOT NULL AUTO_INCREMENT,
-                eventType varchar(50),
-                primary key(eventTypeID))
-    """)
-    c.execute(f"""INSERT INTO eventType(eventType) 
-              SELECT ocel_type from {ocelbase}.event_map_type""")
+    
+def create_objectType(c):
+    c.execute("""CREATE TABLE objectType (
+                    objectTypeID INT NOT NULL AUTO_INCREMENT,
+                    objectType TEXT,
+                    PRIMARY KEY (objectTypeID))""")
+    
+    c.execute(f"""INSERT INTO objectType (objectType) 
+                  SELECT {ocelbase}.object_map_type.ocel_type AS objectType FROM {ocelbase}.object_map_type""")
+
+def create_object(c):
+    c.execute("""CREATE TABLE object (
+                    objectID VARCHAR(50),
+                    objectTypeID VARCHAR(50),
+                    PRIMARY KEY (objectID))""")
+    
+    c.execute(f"""INSERT INTO object
+                 SELECT {ocelbase}.object.ocel_id AS objectID, 
+                 testing1.objectType.objectTypeID FROM {ocelbase}.object NATURAL JOIN testing1.objectType WHERE objectType = ocel_type""")
+    
+def create_objectRelationEvent(c):
+    c.execute("""CREATE TABLE objectRelationEvent (
+                    objectObjectID BIGINT,
+                    eventID VARCHAR(50),
+                    OOEqualifier VARCHAR(50),
+                    PRIMARY KEY (objectObjectID, eventID))""")
+    
+    c.execute("""INSERT INTO objectRelationEvent (objectObjectID, eventID)
+                 SELECT objectObject.objectObjectID, eventObject.eventID FROM objectObject 
+                 NATURAL JOIN eventObject WHERE objectObject.fromObjectID = eventObject.objectID 
+                 OR objectObject.toObjectID = eventObject.objectID""")
+
+def create_objectAttribute(c):
+    c.execute("""CREATE TABLE objectAttribute (
+                    objectAttributeID INT NOT NULL AUTO_INCREMENT,
+                    objectTypeID INT,
+                    objectAttributeName VARCHAR(50),
+                    PRIMARY KEY (objectAttributeID))""")
+    
+    c.execute(f"""SELECT table_name FROM information_schema.tables 
+                  WHERE table_name IN (SELECT CONCAT('object_',ocel_type_map) 
+                  FROM {ocelbase}.object_map_type)""")
+    
+    objNames = c.fetchall()
+    print(objNames)
+
+    for i in objNames:
+        c.execute(f"""SELECT COLUMN_NAME
+                      FROM INFORMATION_SCHEMA.COLUMNS
+                      WHERE TABLE_SCHEMA = '{ocelbase}' AND TABLE_NAME = '{i[0]}' 
+                      AND COLUMN_NAME != 'ocel_id' AND COLUMN_NAME != 'ocel_time'""")
+        atrName = c.fetchall()
+        print(atrName)
+        for j in atrName:
+            c.execute("""INSERT INTO objectAttribute (objectTypeID)
+                         SELECT objectType.objectTypeID FROM object NATURAL JOIN objectType WHERE objectID = objectID""")
+
+def create_objectAttributeValue(c):
+    c.execute("""CREATE TABLE objectAttributeValue (
+                    valueID INT NOT NULL AUTO_INCREMENT,
+                    objectID VARCHAR(50),
+                    timestamp DATETIME,
+                    objectAttributeID INT,
+                    objectAttributeValue VARCHAR(50),
+                    PRIMARY KEY (valueID))""")
+
 create_eventType_Ocel(c)
+create_event_Ocel(c)
 create_objectObject_Ocel(c)
 create_eventObject_Ocel(c)
-create_event_Ocel(c)
+create_objectType(c)
+create_object(c)
+create_objectRelationEvent(c)
+create_objectAttribute(c)
+create_objectAttributeValue(c)
+c.execute("SELECT * FROM event_")
+print(c.fetchall())
 
