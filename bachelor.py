@@ -1,7 +1,7 @@
 import mysql.connector
 mydb = mysql.connector.connect(
   host="localhost",
-  user="admin",
+  user="root",
   password="1234"
 )
 ocelbase = "OCEL"
@@ -138,8 +138,9 @@ def create_objectAttribute(c):
         atrName = c.fetchall()
         print(atrName)
         for j in atrName:
-            c.execute("""INSERT INTO objectAttribute (objectTypeID)
-                         SELECT objectType.objectTypeID FROM object NATURAL JOIN objectType WHERE objectID = objectID""")
+            c.execute(f"""INSERT INTO objectAttribute (objectTypeID,objectAttributeName)
+                         SELECT object.objectTypeID, '{j[0]}' FROM object natural join {ocelbase}.{i[0]} WHERE {ocelbase}.{i[0]}.ocel_id = object.objectID limit 1""")
+            
 
 def create_objectAttributeValue(c):
     c.execute("""CREATE TABLE objectAttributeValue (
@@ -159,6 +160,4 @@ create_object(c)
 create_objectRelationEvent(c)
 create_objectAttribute(c)
 create_objectAttributeValue(c)
-c.execute("SELECT * FROM event_")
-print(c.fetchall())
 
