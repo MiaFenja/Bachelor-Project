@@ -17,8 +17,8 @@ def create_eventType_Ocel(c):
                 primary key(eventTypeID))
     """)
     c.execute("""SET @id = 0""")
-    c.execute(f"""INSERT INTO eventType
-              SELECT ocel_type AS eventType, CONCAT('ET-',(@id := @id +1))  from {ocelbase}.event_map_type""")
+    c.execute(f"""INSERT INTO eventType(eventType,eventTypeID)
+              SELECT ocel_type AS eventType, CONCAT('ET-',(@id := @id +1)) AS eventTypeID from {ocelbase}.event_map_type""")
 
 def create_event_Ocel(c):
     c.execute("""CREATE TABLE event_ (
@@ -186,8 +186,9 @@ def create_objectAttributeValueEvent(c):
  
             
 def create_eventAttribute(c):
+    c.execute("""SET @id = 0""")
     c.execute("""CREATE TABLE eventAttribute (
-                    eventAttributeID INT NOT NULL AUTO_INCREMENT,
+                    eventAttributeID VARCHAR(50),
                     eventTypeID VARCHAR(50),
                     eventAttributeName VARCHAR(50),
                     PRIMARY KEY (eventAttributeID))""")
@@ -206,14 +207,14 @@ def create_eventAttribute(c):
         atrName = c.fetchall()
 
         for j in atrName:
-            c.execute(f"""INSERT INTO eventAttribute (eventTypeID,eventAttributeName)
-                         SELECT event_.eventTypeID, '{j[0]}' FROM event_ NATURAL JOIN {ocelbase}.{i[0]} 
+            c.execute(f"""INSERT INTO eventAttribute (eventTypeID,eventAttributeName,eventAttributeID)
+                         SELECT event_.eventTypeID, '{j[0]}', CONCAT('EA-',(@id := @id+1)) FROM event_ NATURAL JOIN {ocelbase}.{i[0]} 
                          WHERE {ocelbase}.{i[0]}.ocel_id = event_.eventID limit 1""")        
 
 def create_eventAttributeValue(c):
     c.execute("""CREATE TABLE eventAttributeValue (
                     eventID VARCHAR(50),
-                    eventAttributeID INT,
+                    eventAttributeID VARCHAR(50),
                     eventAttributeValue VARCHAR(50),
                     PRIMARY KEY (eventID, eventAttributeValue)) """)        
 
