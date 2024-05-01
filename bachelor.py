@@ -176,7 +176,7 @@ def create_objectAttributeValue(c):
 
 def create_objectAttributeValueEvent(c):
     c.execute("""CREATE TABLE objectAttributeValueEvent(
-              valueID INT,
+              valueID VARCHAR(50),
               eventID VARCHAR(50),
               OAEqualifier VARCHAR(50),
               PRIMARY KEY(valueID,eventID))""")
