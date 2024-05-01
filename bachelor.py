@@ -56,17 +56,18 @@ def create_event_Ocel(c):
 
 
 def create_objectObject_Ocel(c):
+    c.execute("""SET @id = 0;""")
     c.execute("""CREATE TABLE objectObject (
-                    objectObjectID BIGINT NOT NULL AUTO_INCREMENT,
+                    objectObjectID VARCHAR(50),
                     fromObjectID VARCHAR(50), 
                     toObjectID  VARCHAR(50), 
                     objectRelationType VARCHAR(50),
                     PRIMARY KEY (objectObjectID))""")
     
-    c.execute(f"""INSERT INTO objectObject(fromObjectID,toObjectID,objectRelationType) 
+    c.execute(f"""INSERT INTO objectObject(fromObjectID,toObjectID,objectRelationType, objectObjectID) 
                   SELECT {ocelbase}.object_object.ocel_source AS fromObjectID, 
                   {ocelbase}.object_object.ocel_target AS toObjectID, 
-                  {ocelbase}.object_object.ocel_qualifier AS objectRelationType 
+                  {ocelbase}.object_object.ocel_qualifier AS objectRelationType, CONCAT('OO-',(@id := @id + 1)) 
                   FROM {ocelbase}.object_object LEFT JOIN {ocelbase}.event_object 
                   ON {ocelbase}.event_object.ocel_object = {ocelbase}.object_object.ocel_target 
                   OR {ocelbase}.event_object.ocel_object = {ocelbase}.object_object.ocel_source""")
@@ -105,7 +106,7 @@ def create_object(c):
     
 def create_objectRelationEvent(c):
     c.execute("""CREATE TABLE objectRelationEvent (
-                    objectObjectID BIGINT,
+                    objectObjectID VARCHAR(50),
                     eventID VARCHAR(50),
                     OOEqualifier VARCHAR(50),
                     PRIMARY KEY (objectObjectID, eventID))""")
@@ -138,13 +139,15 @@ def create_objectAttribute(c):
 
         for j in atrName:
             c.execute(f"""INSERT INTO objectAttribute (objectTypeID,objectAttributeName,objectAttributeID)
-                         SELECT object.objectTypeID, '{j[0]}', CONCAT('OA',(@id := @id + 1)) FROM object natural join {ocelbase}.{i[0]} WHERE {ocelbase}.{i[0]}.ocel_id = object.objectID limit 1""")
+                         SELECT object.objectTypeID, '{j[0]}', CONCAT('OA-',(@id := @id + 1)) FROM object natural join {ocelbase}.{i[0]} 
+                         WHERE {ocelbase}.{i[0]}.ocel_id = object.objectID limit 1""")
   
             
 
 def create_objectAttributeValue(c):
+    c.execute("""SET @id = 0;""")
     c.execute("""CREATE TABLE objectAttributeValue (
-                    valueID INT NOT NULL AUTO_INCREMENT,
+                    valueID VARCHAR(50),
                     objectID VARCHAR(50),
                     objectAttributeValTime DATETIME,
                     objectAttributeID VARCHAR(50),
@@ -164,10 +167,10 @@ def create_objectAttributeValue(c):
         atrName = c.fetchall()
         for j in atrName:
             c.execute(f"""INSERT INTO objectAttributeValue
-                         (objectID, objectAttributeValTime, objectAttributeID, AttributeValue)
+                         (objectID, objectAttributeValTime, objectAttributeID, AttributeValue, valueID)
                          SELECT {ocelbase}.{i[0]}.ocel_id AS objectID, 
                          {ocelbase}.{i[0]}.ocel_time AS objectAttributeValTime, objectAttributeID, 
-                         CONVERT({ocelbase}.{i[0]}.{j[0]},VARCHAR(50)) AS AttributeValue 
+                         CONVERT({ocelbase}.{i[0]}.{j[0]},VARCHAR(50)) AS AttributeValue, CONCAT('OAV-',(@id := @id + 1)) 
                          FROM {ocelbase}.{i[0]} join (object,objectAttribute) ON ({ocelbase}.{i[0]}.ocel_id = object.objectID 
                          AND object.objectTypeID = objectAttribute.objectTypeID AND objectAttribute.objectAttributeName = '{j[0]}')""")
 
