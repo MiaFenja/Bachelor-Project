@@ -1,7 +1,7 @@
 import mysql.connector
 mydb = mysql.connector.connect(
   host="localhost",
-  user="admin",
+  user="root",
   password="1234"
 )
 ocelbase = "OCEL"
@@ -12,17 +12,18 @@ c.execute("USE testing1")
 
 def create_eventType_Ocel(c):
     c.execute("""CREATE TABLE eventType (
-                eventTypeID BIGINT NOT NULL AUTO_INCREMENT,
+                eventTypeID VARCHAR(50),
                 eventType varchar(50),
                 primary key(eventTypeID))
     """)
-    c.execute(f"""INSERT INTO eventType(eventType) 
-              SELECT ocel_type from {ocelbase}.event_map_type""")
+    c.execute("""SET @id = 0""")
+    c.execute(f"""INSERT INTO eventType
+              SELECT ocel_type AS eventType, CONCAT('ET-',(@id := @id +1))  from {ocelbase}.event_map_type""")
 
 def create_event_Ocel(c):
     c.execute("""CREATE TABLE event_ (
                     eventID VARCHAR(50), 
-                    eventTypeID BIGINT, 
+                    eventTypeID VARCHAR(50), 
                     eventTime DATETIME, 
                     PRIMARY KEY (eventID))""")
     
@@ -184,7 +185,7 @@ def create_objectAttributeValueEvent(c):
 def create_eventAttribute(c):
     c.execute("""CREATE TABLE eventAttribute (
                     eventAttributeID INT NOT NULL AUTO_INCREMENT,
-                    eventTypeID INT,
+                    eventTypeID VARCHAR(50),
                     eventAttributeName VARCHAR(50),
                     PRIMARY KEY (eventAttributeID))""")
     
