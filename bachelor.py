@@ -115,8 +115,9 @@ def create_objectRelationEvent(c):
                  OR objectObject.toObjectID = eventObject.objectID""")
 
 def create_objectAttribute(c):
+    c.execute("""SET @id = 0;""")
     c.execute("""CREATE TABLE objectAttribute (
-                    objectAttributeID INT NOT NULL AUTO_INCREMENT,
+                    objectAttributeID VARCHAR(50),
                     objectTypeID INT,
                     objectAttributeName VARCHAR(50),
                     PRIMARY KEY (objectAttributeID))""")
@@ -135,8 +136,8 @@ def create_objectAttribute(c):
         atrName = c.fetchall()
 
         for j in atrName:
-            c.execute(f"""INSERT INTO objectAttribute (objectTypeID,objectAttributeName)
-                         SELECT object.objectTypeID, '{j[0]}' FROM object natural join {ocelbase}.{i[0]} WHERE {ocelbase}.{i[0]}.ocel_id = object.objectID limit 1""")
+            c.execute(f"""INSERT INTO objectAttribute (objectTypeID,objectAttributeName,objectAttributeID)
+                         SELECT object.objectTypeID, '{j[0]}', CONCAT('OA',(@id := @id + 1)) FROM object natural join {ocelbase}.{i[0]} WHERE {ocelbase}.{i[0]}.ocel_id = object.objectID limit 1""")
   
             
 
@@ -145,7 +146,7 @@ def create_objectAttributeValue(c):
                     valueID INT NOT NULL AUTO_INCREMENT,
                     objectID VARCHAR(50),
                     objectAttributeValTime DATETIME,
-                    objectAttributeID INT,
+                    objectAttributeID VARCHAR(50),
                     AttributeValue VARCHAR(50),
                     PRIMARY KEY (valueID))""")
     c.execute(f"""SELECT table_name FROM information_schema.tables 
