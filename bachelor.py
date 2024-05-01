@@ -165,10 +165,15 @@ def create_objectAttributeValue(c):
                     SELECT {ocelbase}.{i[0]}.ocel_id AS objectID, 
                     {ocelbase}.{i[0]}.ocel_time AS objectAttributeValTime, objectAttributeID, 
                         convert({ocelbase}.{i[0]}.{j[0]},varchar(50)) AS AttributeValue FROM {ocelbase}.{i[0]} join (object,objectAttribute) ON ({ocelbase}.{i[0]}.ocel_id = object.objectID AND object.objectTypeID = objectAttribute.objectTypeID AND objectAttribute.objectAttributeName = '{j[0]}')""")
-            
-            
-            
-        
+def create_objectAttributeValueEvent(c):
+    c.execute("""CREATE TABLE objectAttributeValueEvent(
+              valueID INT,
+              eventID VARCHAR(50),
+              OAEqualifier VARCHAR(50),
+              PRIMARY KEY(valueID,eventID)
+    )""")
+    c.execute("""INSERT INTO objectAttributeValueEvent(valueID,eventID) SELECT valueID, eventID FROM objectAttributeValue NATURAL JOIN event_ WHERE eventTime = objectAttributeValTime""")
+
         
 
 create_eventType_Ocel(c)
@@ -180,6 +185,7 @@ create_object(c)
 create_objectRelationEvent(c)
 create_objectAttribute(c)
 create_objectAttributeValue(c)
+create_objectAttributeValueEvent(c)
 c.execute("select * from objectAttributeValue")
 fetchh = c.fetchall()
 print(fetchh)
