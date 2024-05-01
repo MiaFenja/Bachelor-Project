@@ -1,7 +1,7 @@
 import mysql.connector
 mydb = mysql.connector.connect(
   host="localhost",
-  user="root",
+  user="admin",
   password="1234"
 )
 ocelbase = "OCEL"
@@ -48,9 +48,9 @@ def create_event_Ocel(c):
     c.execute("""INSERT INTO event_ SELECT 
               ocel_id AS eventID, 
               eventTypeID,
-              ocel_time AS eventTime from
+              ocel_time AS eventTime FROM
               temporaryTable LEFT JOIN eventType 
-              on temporaryTable.eventType = eventType.eventType""")
+              ON temporaryTable.eventType = eventType.eventType""")
     c.execute("DROP TABLE temporaryTable")
 
 
@@ -136,7 +136,8 @@ def create_objectAttribute(c):
 
         for j in atrName:
             c.execute(f"""INSERT INTO objectAttribute (objectTypeID,objectAttributeName)
-                         SELECT object.objectTypeID, '{j[0]}' FROM object natural join {ocelbase}.{i[0]} WHERE {ocelbase}.{i[0]}.ocel_id = object.objectID limit 1""")
+                         SELECT object.objectTypeID, '{j[0]}' FROM object NATURAL JOIN {ocelbase}.{i[0]} 
+                         WHERE {ocelbase}.{i[0]}.ocel_id = object.objectID LIMIT 1""")
   
             
 
@@ -148,6 +149,7 @@ def create_objectAttributeValue(c):
                     objectAttributeID INT,
                     AttributeValue VARCHAR(50),
                     PRIMARY KEY (valueID))""")
+    
     c.execute(f"""SELECT table_name FROM information_schema.tables 
                   WHERE table_name IN (SELECT CONCAT('object_',ocel_type_map) 
                   FROM {ocelbase}.object_map_type)""")
@@ -161,20 +163,73 @@ def create_objectAttributeValue(c):
         atrName = c.fetchall()
         for j in atrName:
             c.execute(f"""INSERT INTO objectAttributeValue
-                   (objectID, objectAttributeValTime, objectAttributeID, AttributeValue)
-                    SELECT {ocelbase}.{i[0]}.ocel_id AS objectID, 
-                    {ocelbase}.{i[0]}.ocel_time AS objectAttributeValTime, objectAttributeID, 
-                        convert({ocelbase}.{i[0]}.{j[0]},varchar(50)) AS AttributeValue FROM {ocelbase}.{i[0]} join (object,objectAttribute) ON ({ocelbase}.{i[0]}.ocel_id = object.objectID AND object.objectTypeID = objectAttribute.objectTypeID AND objectAttribute.objectAttributeName = '{j[0]}')""")
+                         (objectID, objectAttributeValTime, objectAttributeID, AttributeValue)
+                         SELECT {ocelbase}.{i[0]}.ocel_id AS objectID, 
+                         {ocelbase}.{i[0]}.ocel_time AS objectAttributeValTime, objectAttributeID, 
+                         CONVERT({ocelbase}.{i[0]}.{j[0]},VARCHAR(50)) AS AttributeValue 
+                         FROM {ocelbase}.{i[0]} join (object,objectAttribute) ON ({ocelbase}.{i[0]}.ocel_id = object.objectID 
+                         AND object.objectTypeID = objectAttribute.objectTypeID AND objectAttribute.objectAttributeName = '{j[0]}')""")
+
 def create_objectAttributeValueEvent(c):
     c.execute("""CREATE TABLE objectAttributeValueEvent(
               valueID INT,
               eventID VARCHAR(50),
               OAEqualifier VARCHAR(50),
-              PRIMARY KEY(valueID,eventID)
-    )""")
-    c.execute("""INSERT INTO objectAttributeValueEvent(valueID,eventID) SELECT valueID, eventID FROM objectAttributeValue NATURAL JOIN event_ WHERE eventTime = objectAttributeValTime""")
+              PRIMARY KEY(valueID,eventID))""")
+    
+    c.execute("""INSERT INTO objectAttributeValueEvent(valueID,eventID) SELECT valueID, eventID 
+              FROM objectAttributeValue NATURAL JOIN event_ WHERE eventTime = objectAttributeValTime""")
+ 
+            
+def create_eventAttribute(c):
+    c.execute("""CREATE TABLE eventAttribute (
+                    eventAttributeID INT NOT NULL AUTO_INCREMENT,
+                    eventTypeID INT,
+                    eventAttributeName VARCHAR(50),
+                    PRIMARY KEY (eventAttributeID))""")
+    
+    c.execute(f"""SELECT table_name FROM information_schema.tables 
+                  WHERE table_name IN (SELECT CONCAT('event_',ocel_type_map) 
+                  FROM {ocelbase}.event_map_type)""")
+    
+    eventNames = c.fetchall()
 
-        
+    for i in eventNames:
+        c.execute(f"""SELECT COLUMN_NAME
+                      FROM INFORMATION_SCHEMA.COLUMNS
+                      WHERE TABLE_SCHEMA = '{ocelbase}' AND TABLE_NAME = '{i[0]}' 
+                      AND COLUMN_NAME != 'ocel_id' AND COLUMN_NAME != 'ocel_time'""")
+        atrName = c.fetchall()
+
+        for j in atrName:
+            c.execute(f"""INSERT INTO eventAttribute (eventTypeID,eventAttributeName)
+                         SELECT event_.eventTypeID, '{j[0]}' FROM event_ NATURAL JOIN {ocelbase}.{i[0]} 
+                         WHERE {ocelbase}.{i[0]}.ocel_id = event_.eventID limit 1""")        
+
+def create_eventAttributeValue(c):
+    c.execute("""CREATE TABLE eventAttributeValue (
+                    eventID VARCHAR(50),
+                    eventAttributeID INT,
+                    eventAttributeValue VARCHAR(50),
+                    PRIMARY KEY (eventID, eventAttributeValue)) """)        
+
+    c.execute(f"""SELECT table_name FROM information_schema.tables 
+                  WHERE table_name IN (SELECT CONCAT('event_',ocel_type_map) 
+                  FROM {ocelbase}.event_map_type)""")
+    
+    eventNames = c.fetchall()
+    for i in eventNames:
+        c.execute(f"""SELECT COLUMN_NAME
+                      FROM INFORMATION_SCHEMA.COLUMNS
+                      WHERE TABLE_SCHEMA = '{ocelbase}' AND TABLE_NAME = '{i[0]}' 
+                      AND COLUMN_NAME != 'ocel_id' AND COLUMN_NAME != 'ocel_time'""")
+        atrName = c.fetchall()
+        for j in atrName:
+            c.execute(f"""INSERT INTO eventAttributeValue
+                         SELECT {ocelbase}.{i[0]}.ocel_id AS eventID, 
+                         eventAttributeID, CONVERT({ocelbase}.{i[0]}.{j[0]},VARCHAR(50)) AS eventAttributeValue 
+                         FROM {ocelbase}.{i[0]} join (event_,eventAttribute) ON ({ocelbase}.{i[0]}.ocel_id = event_.eventID 
+                         AND event_.eventTypeID = eventAttribute.eventTypeID AND eventAttribute.eventAttributeName = '{j[0]}')""")
 
 create_eventType_Ocel(c)
 create_event_Ocel(c)
@@ -186,6 +241,8 @@ create_objectRelationEvent(c)
 create_objectAttribute(c)
 create_objectAttributeValue(c)
 create_objectAttributeValueEvent(c)
+create_eventAttribute(c)
+create_eventAttributeValue(c)
 c.execute("select * from objectAttributeValue")
 fetchh = c.fetchall()
 print(fetchh)
