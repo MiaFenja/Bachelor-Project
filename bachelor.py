@@ -86,13 +86,14 @@ def create_eventObject_Ocel(c):
                   FROM {ocelbase}.event_object""")
     
 def create_objectType(c):
+    c.execute("""SET @id = 0;""")
     c.execute("""CREATE TABLE objectType (
-                    objectTypeID INT NOT NULL AUTO_INCREMENT,
+                    objectTypeID VARCHAR(50),
                     objectType TEXT,
                     PRIMARY KEY (objectTypeID))""")
     
-    c.execute(f"""INSERT INTO objectType (objectType) 
-                  SELECT {ocelbase}.object_map_type.ocel_type AS objectType FROM {ocelbase}.object_map_type""")
+    c.execute(f"""INSERT INTO objectType (objectType, objectTypeID) 
+                  SELECT {ocelbase}.object_map_type.ocel_type AS objectType, CONCAT('OT-',(@id := @id + 1)) FROM {ocelbase}.object_map_type""")
 
 def create_object(c):
     c.execute("""CREATE TABLE object (
@@ -120,7 +121,7 @@ def create_objectAttribute(c):
     c.execute("""SET @id = 0;""")
     c.execute("""CREATE TABLE objectAttribute (
                     objectAttributeID VARCHAR(50),
-                    objectTypeID INT,
+                    objectTypeID VARCHAR(50),
                     objectAttributeName VARCHAR(50),
                     PRIMARY KEY (objectAttributeID))""")
     
@@ -248,7 +249,7 @@ create_objectAttributeValue(c)
 create_objectAttributeValueEvent(c)
 create_eventAttribute(c)
 create_eventAttributeValue(c)
-c.execute("select * from objectAttributeValue")
+c.execute("select * from objectType")
 fetchh = c.fetchall()
 print(fetchh)
 mydb.commit()
