@@ -4,7 +4,7 @@ mydb = mysql.connector.connect(
   user="admin",
   password="1234"
 )
-ocelbase = "OCEL"
+ocelbase = "OCEL_p2p"
 c = mydb.cursor()
 c.execute("DROP DATABASE IF EXISTS testing1")
 c.execute("CREATE DATABASE testing1")
@@ -21,7 +21,7 @@ def create_eventType_Ocel(c):
               SELECT ocel_type AS eventType, CONCAT('ET-',(@id := @id +1)) AS eventTypeID from {ocelbase}.event_map_type""")
 
 def create_event_Ocel(c):
-    c.execute("""CREATE TABLE event_ (
+    c.execute("""CREATE TABLE event (
                     eventID VARCHAR(50), 
                     eventTypeID VARCHAR(50), 
                     eventTime DATETIME, 
@@ -43,10 +43,10 @@ def create_event_Ocel(c):
                    ocel_type AS eventType,
                    ocel_time 
                    FROM {ocelbase}.{t[0]}
-                   NATURAL LEFT JOIN {ocelbase}.event_""")
+                   NATURAL LEFT JOIN {ocelbase}.event""")
 
     
-    c.execute("""INSERT INTO event_ SELECT 
+    c.execute("""INSERT INTO event SELECT 
               ocel_id AS eventID, 
               eventTypeID,
               ocel_time AS eventTime FROM
@@ -65,12 +65,12 @@ def create_objectObject_Ocel(c):
                     PRIMARY KEY (objectObjectID))""")
     
     c.execute(f"""INSERT INTO objectObject(fromObjectID,toObjectID,objectRelationType, objectObjectID) 
-                  SELECT {ocelbase}.object_object.ocel_source AS fromObjectID, 
-                  {ocelbase}.object_object.ocel_target AS toObjectID, 
+                  SELECT {ocelbase}.object_object.ocel_source_id AS fromObjectID, 
+                  {ocelbase}.object_object.ocel_target_id AS toObjectID, 
                   {ocelbase}.object_object.ocel_qualifier AS objectRelationType, CONCAT('OO-',(@id := @id + 1)) 
                   FROM {ocelbase}.object_object LEFT JOIN {ocelbase}.event_object 
-                  ON {ocelbase}.event_object.ocel_object = {ocelbase}.object_object.ocel_target 
-                  OR {ocelbase}.event_object.ocel_object = {ocelbase}.object_object.ocel_source""")
+                  ON {ocelbase}.event_object.ocel_object_id = {ocelbase}.object_object.ocel_target_id 
+                  OR {ocelbase}.event_object.ocel_object_id = {ocelbase}.object_object.ocel_source_id""")
 
 def create_eventObject_Ocel(c):
     c.execute("""CREATE TABLE eventObject (
@@ -80,8 +80,8 @@ def create_eventObject_Ocel(c):
                     PRIMARY KEY (eventID,objectID))""")
     
     c.execute(f"""INSERT INTO eventObject 
-                  SELECT {ocelbase}.event_object.ocel_event AS eventID, 
-                  {ocelbase}.event_object.ocel_object AS objectID, 
+                  SELECT {ocelbase}.event_object.ocel_event_id AS eventID, 
+                  {ocelbase}.event_object.ocel_object_id AS objectID, 
                   {ocelbase}.event_object.ocel_qualifier AS OEqualifier 
                   FROM {ocelbase}.event_object""")
     
@@ -106,14 +106,16 @@ def create_object(c):
                  testing1.objectType.objectTypeID FROM {ocelbase}.object NATURAL JOIN testing1.objectType WHERE objectType = ocel_type""")
     
 def create_objectRelationEvent(c):
+    c.execute("""SET @id = 0;""")
     c.execute("""CREATE TABLE objectRelationEvent (
+                    objectRelationEventID VARCHAR(50),
                     objectObjectID VARCHAR(50),
                     eventID VARCHAR(50),
                     OOEqualifier VARCHAR(50),
-                    PRIMARY KEY (objectObjectID, eventID))""")
+                    PRIMARY KEY (objectRelationEventID))""")
     
-    c.execute("""INSERT INTO objectRelationEvent (objectObjectID, eventID)
-                 SELECT objectObject.objectObjectID, eventObject.eventID FROM objectObject 
+    c.execute("""INSERT INTO objectRelationEvent (objectObjectID, eventID, objectRelationEventID)
+                 SELECT objectObject.objectObjectID, eventObject.eventID, CONCAT('ORE-',(@id := @id + 1)) FROM objectObject 
                  NATURAL JOIN eventObject WHERE objectObject.fromObjectID = eventObject.objectID 
                  OR objectObject.toObjectID = eventObject.objectID""")
 
@@ -183,7 +185,7 @@ def create_objectAttributeValueEvent(c):
               PRIMARY KEY(valueID,eventID))""")
     
     c.execute("""INSERT INTO objectAttributeValueEvent(valueID,eventID) SELECT valueID, eventID 
-              FROM objectAttributeValue NATURAL JOIN event_ WHERE eventTime = objectAttributeValTime""")
+              FROM objectAttributeValue NATURAL JOIN event WHERE eventTime = objectAttributeValTime""")
  
             
 def create_eventAttribute(c):
@@ -209,8 +211,8 @@ def create_eventAttribute(c):
 
         for j in atrName:
             c.execute(f"""INSERT INTO eventAttribute (eventTypeID,eventAttributeName,eventAttributeID)
-                         SELECT event_.eventTypeID, '{j[0]}', CONCAT('EA-',(@id := @id+1)) FROM event_ NATURAL JOIN {ocelbase}.{i[0]} 
-                         WHERE {ocelbase}.{i[0]}.ocel_id = event_.eventID limit 1""")        
+                         SELECT event.eventTypeID, '{j[0]}', CONCAT('EA-',(@id := @id+1)) FROM event NATURAL JOIN {ocelbase}.{i[0]} 
+                         WHERE {ocelbase}.{i[0]}.ocel_id = event.eventID limit 1""")        
 
 def create_eventAttributeValue(c):
     c.execute("""CREATE TABLE eventAttributeValue (
@@ -234,8 +236,8 @@ def create_eventAttributeValue(c):
             c.execute(f"""INSERT INTO eventAttributeValue
                          SELECT {ocelbase}.{i[0]}.ocel_id AS eventID, 
                          eventAttributeID, CONVERT({ocelbase}.{i[0]}.{j[0]},VARCHAR(50)) AS eventAttributeValue 
-                         FROM {ocelbase}.{i[0]} join (event_,eventAttribute) ON ({ocelbase}.{i[0]}.ocel_id = event_.eventID 
-                         AND event_.eventTypeID = eventAttribute.eventTypeID AND eventAttribute.eventAttributeName = '{j[0]}')""")
+                         FROM {ocelbase}.{i[0]} join (event,eventAttribute) ON ({ocelbase}.{i[0]}.ocel_id = event.eventID 
+                         AND event.eventTypeID = eventAttribute.eventTypeID AND eventAttribute.eventAttributeName = '{j[0]}')""")
 
 create_eventType_Ocel(c)
 create_event_Ocel(c)
