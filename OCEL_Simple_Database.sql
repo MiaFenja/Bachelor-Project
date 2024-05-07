@@ -46,17 +46,17 @@ CREATE TABLE object (
 
 
 CREATE TABLE object_object (
-	ocel_source varchar(50),
-    ocel_target varchar(50),
+	ocel_source_id varchar(50),
+    ocel_target_id varchar(50),
     ocel_qualifier varchar(50),
-    PRIMARY KEY (ocel_source, ocel_target, ocel_qualifier)
+    PRIMARY KEY (ocel_source_id, ocel_target_id, ocel_qualifier)
 );
 
 CREATE TABLE event_object (
-	ocel_event varchar(50),
-    ocel_object varchar(50),
+	ocel_event_id varchar(50),
+    ocel_object_id varchar(50),
     ocel_qualifier varchar(50),
-    PRIMARY KEY ( ocel_event, ocel_object, ocel_qualifier)
+    PRIMARY KEY ( ocel_event_id, ocel_object_id, ocel_qualifier)
 );
 
 CREATE TABLE event_ReceiveOrder (
@@ -94,7 +94,7 @@ CREATE TABLE object_OrderForm (
 CREATE TABLE object_Book (
 	ocel_id varchar(50),
     ocel_time DATETIME,
-    wight INT,
+    weight INT,
     price INT,
     PRIMARY KEY (ocel_id)
 );
