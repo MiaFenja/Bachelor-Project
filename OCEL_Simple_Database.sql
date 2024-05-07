@@ -99,11 +99,11 @@ INSERT INTO event_map_type VALUES
 
 INSERT INTO event VALUES
 ('rec_order1 ','Receive Order'),
-('rec_order2','Receive order'),
-('pack_order1','Pack order'),
-('pack_order2','Pack order'),
-('send_order1','send order'),
-( 'send_order2','send order');
+('rec_order2','Receive Order'),
+('pack_order1','Pack Order'),
+('pack_order2','Pack Order'),
+('send_order1','Send Order'),
+( 'send_order2','Send Order');
 
 Insert INTO object_map_type values
 ('Order Form','OrderForm'),
@@ -111,10 +111,10 @@ Insert INTO object_map_type values
 ('Package','Package');
 
 Insert INTO object values
-('pack1','package'),
-('pack2','package'),
-('book1','book'),
-('book2','book'),
+('pack1','Package'),
+('pack2','Package'),
+('book1','Book'),
+('book2','Book'),
 ('order_form1','Order Form'),
 ('order_form2','Order Form');
 

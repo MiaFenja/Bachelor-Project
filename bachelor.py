@@ -1,7 +1,7 @@
 import mysql.connector
 mydb = mysql.connector.connect(
   host="localhost",
-  user="root",
+  user="admin",
   password="1234"
 )
 ocelbase = "OCEL"
@@ -32,27 +32,13 @@ def create_event_Ocel(c):
                   FROM {ocelbase}.event_map_type""")
     
     names = c.fetchall()
-    c.execute("""CREATE TABLE
-              temporaryTable(
-              ocel_id varchar(50), 
-              eventType varchar(50),
-              ocel_time DATETIME)""")
     for t in names:
-         c.execute(f"""INSERT INTO temporaryTable 
-                   SELECT ocel_id,
-                   ocel_type AS eventType,
-                   ocel_time 
-                   FROM {ocelbase}.{t[0]}
-                   NATURAL LEFT JOIN {ocelbase}.event""")
+         c.execute(f"""INSERT INTO event
+                   SELECT ocel_id AS eventID, eventTypeID, ocel_time AS eventTime FROM {ocelbase}.event 
+                   NATURAL JOIN {ocelbase}.{t[0]} NATURAL JOIN eventType 
+                   WHERE eventType.eventType = {ocelbase}.event.ocel_type;""")
 
-    
-    c.execute("""INSERT INTO event SELECT 
-              ocel_id AS eventID, 
-              eventTypeID,
-              ocel_time AS eventTime FROM
-              temporaryTable LEFT JOIN eventType 
-              ON temporaryTable.eventType = eventType.eventType""")
-    c.execute("DROP TABLE temporaryTable")
+  
 
 
 def create_objectObject_Ocel(c):
@@ -251,7 +237,7 @@ create_objectAttributeValue(c)
 create_objectAttributeValueEvent(c)
 create_eventAttribute(c)
 create_eventAttributeValue(c)
-c.execute("select * from objectType")
+c.execute("select * from object")
 fetchh = c.fetchall()
 print(fetchh)
 mydb.commit()

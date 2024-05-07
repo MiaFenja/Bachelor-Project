@@ -21,75 +21,96 @@ def create_eventType_Ocel(c):
                   SET eventTypeID = "ET-{i[0]}" 
                   WHERE rowid  = {i[0]}""")
     connect.commit()
+
 def create_event_Ocel(c):
     c.execute("""CREATE TABLE "event" (
                     `eventID` TEXT PRIMARY KEY, 
                     `eventTypeID` TEXT, 
                     `eventTime` TIMESTAMP)""")
     
-    c.execute(f"""SELECT CONCAT('event_',ocel_type_map) 
+    c.execute(f"""SELECT 'event_' || ocel_type_map
                   FROM ocelbase.event_map_type""")
     
     names = c.fetchall()
+    print(names)
    
     for t in names:
-
-        c.execute(f"""INSERT INTO event SELECT ocelbase.event.ocel_id AS eventID, eventTypeID, ocel_time AS eventTime 
-                  FROM (ocelbase.event inner join eventType on ocel_type = eventType) left join ocelbase.{t[0]}
-                    """)
+        c.execute(f"""INSERT INTO event
+                   SELECT ocel_id AS eventID, eventTypeID, ocel_time AS eventTime FROM ocelbase.event 
+                   NATURAL JOIN ocelbase.{t[0]} NATURAL JOIN eventType 
+                   WHERE eventType.eventType = ocelbase.event.ocel_type;
+                   """)
         print(c.fetchall())
+        connect.commit()
                   
 
        
 
 def create_objectObject_Ocel(c):
-    c.execute("""CREATE TABLE objectObject (
-                    objectObjectID VARCHAR(50),
-                    fromObjectID VARCHAR(50), 
-                    toObjectID  VARCHAR(50), 
-                    objectRelationType VARCHAR(50),
-                    PRIMARY KEY (objectObjectID))""")
+    c.execute("""CREATE TABLE "objectObject" (
+                    `objectObjectID` TEXT,
+                    `fromObjectID` TEXT, 
+                    `toObjectID`  TEXT, 
+                    `objectRelationType` TEXT,
+                    PRIMARY KEY (`objectObjectID`))""")
     
-    c.execute(f"""INSERT INTO objectObject(fromObjectID,toObjectID,objectRelationType, objectObjectID) 
+    c.execute(f"""INSERT INTO objectObject(fromObjectID,toObjectID,objectRelationType) 
                   SELECT ocelbase.object_object.ocel_source_id AS fromObjectID, 
                   ocelbase.object_object.ocel_target_id AS toObjectID, 
-                  ocelbase.object_object.ocel_qualifier AS objectRelationType, CONCAT('OO-',(@id := @id + 1)) 
+                  ocelbase.object_object.ocel_qualifier AS objectRelationType 
                   FROM ocelbase.object_object LEFT JOIN ocelbase.event_object 
                   ON ocelbase.event_object.ocel_object_id = ocelbase.object_object.ocel_target_id 
                   OR ocelbase.event_object.ocel_object_id = ocelbase.object_object.ocel_source_id""")
+    c.execute(f"SELECT rowid from objectObject")
+    rowids = c.fetchall()
+    for i in rowids:
+        c.execute(f"""UPDATE objectObject 
+                  SET objectObjectID = "OO-{i[0]}" 
+                  WHERE rowid  = {i[0]}""")
+    connect.commit()
 
 def create_eventObject_Ocel(c):
-    c.execute("""CREATE TABLE eventObject (
-                    eventID VARCHAR(50), 
-                    objectID VARCHAR(50),
-                    OEqualifier TEXT, 
-                    PRIMARY KEY (eventID,objectID))""")
+    c.execute("""CREATE TABLE "eventObject" (
+                    `eventID` TEXT, 
+                    `objectID` TEXT,
+                    `OEqualifier` TEXT, 
+                    PRIMARY KEY (`eventID`,`objectID`))""")
     
     c.execute(f"""INSERT INTO eventObject 
                   SELECT ocelbase.event_object.ocel_event_id AS eventID, 
                   ocelbase.event_object.ocel_object_id AS objectID, 
                   ocelbase.event_object.ocel_qualifier AS OEqualifier 
                   FROM ocelbase.event_object""")
+    connect.commit()
     
 def create_objectType(c):
 
-    c.execute("""CREATE TABLE objectType (
-                    objectTypeID VARCHAR(50),
-                    objectType TEXT,
-                    PRIMARY KEY (objectTypeID))""")
+    c.execute("""CREATE TABLE "objectType" (
+                    `objectTypeID` TEXT,
+                    `objectType` TEXT,
+                    PRIMARY KEY (`objectTypeID`))""")
     
-    c.execute(f"""INSERT INTO objectType (objectType, objectTypeID) 
-                  SELECT ocelbase.object_map_type.ocel_type AS objectType, CONCAT('OT-',(@id := @id + 1)) FROM ocelbase.object_map_type""")
+    c.execute(f"""INSERT INTO objectType (objectType) 
+                  SELECT ocelbase.object_map_type.ocel_type AS objectType FROM ocelbase.object_map_type""")
+    c.execute(f"SELECT rowid from objectType")
+    rowids = c.fetchall()
+    for i in rowids:
+        c.execute(f"""UPDATE objectType 
+                  SET objectTypeID = "OT-{i[0]}" 
+                  WHERE rowid  = {i[0]}""")
+    connect.commit()
 
 def create_object(c):
-    c.execute("""CREATE TABLE object (
-                    objectID VARCHAR(50),
-                    objectTypeID VARCHAR(50),
-                    PRIMARY KEY (objectID))""")
+    c.execute("""CREATE TABLE "object" (
+                    `objectID` TEXT,
+                    `objectTypeID` TEXT,
+                    PRIMARY KEY (`objectID`))""")
     
-    c.execute(f"""INSERT INTO object
+    c.execute(f"""
                  SELECT ocelbase.object.ocel_id AS objectID, 
-                 testing1.objectType.objectTypeID FROM ocelbase.object NATURAL JOIN testing1.objectType WHERE objectType = ocel_type""")
+                 objectType.objectTypeID FROM ocelbase.object LEFT JOIN objectType ON ocelbase.object.ocel_type = objectType.objectType""")
+    print(c.fetchall())
+    connect.commit()
     
 def create_objectRelationEvent(c):
     c.execute("""CREATE TABLE objectRelationEvent (
@@ -234,7 +255,7 @@ create_objectAttributeValue(c)
 create_objectAttributeValueEvent(c)
 create_eventAttribute(c)
 create_eventAttributeValue(c)
-c.execute("select * from objectType")
+c.execute("select * from objectObject")
 fetchh = c.fetchall()
 print(fetchh)
 mydb.commit()
