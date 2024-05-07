@@ -4,7 +4,7 @@ mydb = mysql.connector.connect(
   user="admin",
   password="1234"
 )
-ocelbase = "OCEL_p2p"
+ocelbase = "OCEL"
 c = mydb.cursor()
 c.execute("DROP DATABASE IF EXISTS testing1")
 c.execute("CREATE DATABASE testing1")

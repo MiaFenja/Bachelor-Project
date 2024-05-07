@@ -1,120 +1,103 @@
-#CREATE DATABASE OCEL;
-USE OCEL;
-
-DROP TABLE IF EXISTS event_;
-DROP TABLE IF EXISTS event_map_type;
-DROP TABLE IF EXISTS object;
-DROP TABLE IF EXISTS object_map_type;
-DROP TABLE IF EXISTS object_object;
-DROP TABLE IF EXISTS event_object;
-DROP TABLE IF EXISTS event_ReceiveOrder;
-DROP TABLE IF EXISTS event_PackOrder;
-DROP TABLE IF EXISTS event_SendOrder;
-DROP TABLE IF EXISTS event_ReturnOrder;
-DROP TABLE IF EXISTS object_OrderForm;
-DROP TABLE IF EXISTS object_Book;
-DROP TABLE IF EXISTS object_Package;
+BEGIN TRANSACTION;
 
 
-
-
-CREATE TABLE event_map_type (
-	ocel_type varchar(50),
-    ocel_type_map varchar(50),
-    PRIMARY KEY (ocel_type)
+CREATE TABLE IF NOT EXISTS "event_map_type" (
+	`ocel_type` TEXT,
+    `ocel_type_map` TEXT,
+    PRIMARY KEY (`ocel_type`)
 );
 
-CREATE TABLE event_ (
-	ocel_id varchar(50),
-    ocel_type varchar(50),
-    PRIMARY KEY (ocel_id),
-    FOREIGN KEY (ocel_type) REFERENCES event_map_type (ocel_type)
+CREATE TABLE IF NOT EXISTS "event" (
+	`ocel_id` TEXT,
+    `ocel_type` TEXT,
+    PRIMARY KEY (`ocel_id`),
+    FOREIGN KEY (`ocel_type`) REFERENCES event_map_type (`ocel_type`)
 );
 
-CREATE TABLE object_map_type (
-	ocel_type varchar(50),
-    ocel_type_map varchar(50),
-    PRIMARY KEY (ocel_type)
+CREATE TABLE IF NOT EXISTS "object_map_type" (
+	`ocel_type` TEXT,
+    `ocel_type_map` TEXT,
+    PRIMARY KEY (`ocel_type`)
 );
 
-CREATE TABLE object (
-	ocel_id varchar(50),
-    ocel_type varchar(50),
-    PRIMARY KEY (ocel_id),
-    FOREIGN KEY (ocel_type) REFERENCES object_map_type (ocel_type)
+CREATE TABLE IF NOT EXISTS "object" (
+	`ocel_id` TEXT,
+    `ocel_type` TEXT,
+    PRIMARY KEY (`ocel_id`),
+    FOREIGN KEY (`ocel_type`) REFERENCES object_map_type (`ocel_type`)
 );
 
 
-CREATE TABLE object_object (
-	ocel_source_id varchar(50),
-    ocel_target_id varchar(50),
-    ocel_qualifier varchar(50),
-    PRIMARY KEY (ocel_source_id, ocel_target_id, ocel_qualifier)
+CREATE TABLE IF NOT EXISTS "object_object" (
+	`ocel_source_id` TEXT,
+    `ocel_target_id` TEXT,
+    `ocel_qualifier` TEXT,
+    PRIMARY KEY (`ocel_source_id`, `ocel_target_id`, `ocel_qualifier`)
 );
 
-CREATE TABLE event_object (
-	ocel_event_id varchar(50),
-    ocel_object_id varchar(50),
-    ocel_qualifier varchar(50),
-    PRIMARY KEY ( ocel_event_id, ocel_object_id, ocel_qualifier)
+CREATE TABLE IF NOT EXISTS "event_object" (
+	`ocel_event_id` TEXT,
+    `ocel_object_id` TEXT,
+    `ocel_qualifier` TEXT,
+    PRIMARY KEY (`ocel_event_id`, `ocel_object_id`, `ocel_qualifier`)
 );
 
-CREATE TABLE event_ReceiveOrder (
-	ocel_id varchar(50),
-    ocel_time DATETIME,
-    PRIMARY KEY (ocel_id)
+CREATE TABLE IF NOT EXISTS "event_ReceiveOrder" (
+	`ocel_id` TEXT,
+    `ocel_time` TIMESTAMP,
+    PRIMARY KEY (`ocel_id`)
 );
 
-CREATE TABLE event_PackOrder (
-	ocel_id varchar(50),
-    ocel_time DATETIME,
-    PRIMARY KEY (ocel_id)
+CREATE TABLE IF NOT EXISTS "event_PackOrder" (
+	`ocel_id` TEXT,
+    `ocel_time` TIMESTAMP,
+    PRIMARY KEY (`ocel_id`)
 );
 
-CREATE TABLE event_SendOrder (
-	ocel_id varchar(50),
-    ocel_time DATETIME,
-    completed BOOLEAN,
-    PRIMARY KEY (ocel_id)
+CREATE TABLE IF NOT EXISTS "event_SendOrder" (
+	`ocel_id` TEXT,
+    `ocel_time` TIMESTAMP,
+    `completed` BOOLEAN,
+    PRIMARY KEY (`ocel_id`)
 );
 
-CREATE TABLE event_ReturnOrder (
-	ocel_id varchar(50),
-    ocel_time DATETIME,
-    PRIMARY KEY (ocel_id)
+CREATE TABLE IF NOT EXISTS "event_ReturnOrder" (
+	`ocel_id` TEXT,
+    `ocel_time` TIMESTAMP,
+    PRIMARY KEY (`ocel_id`)
 );
 
-CREATE TABLE object_OrderForm (
-	ocel_id varchar(50),
-    ocel_time DATETIME,
-    number_of_items INT,
-    PRIMARY KEY (ocel_id)
+CREATE TABLE IF NOT EXISTS "object_OrderForm" (
+	`ocel_id` TEXT,
+    `ocel_time` TIMESTAMP,
+    `number_of_items` INT,
+    PRIMARY KEY (`ocel_id`)
 );
 
-CREATE TABLE object_Book (
-	ocel_id varchar(50),
-    ocel_time DATETIME,
-    weight INT,
-    price INT,
-    PRIMARY KEY (ocel_id)
+CREATE TABLE IF NOT EXISTS "object_Book" (
+	`ocel_id` TEXT,
+    `ocel_time` TIMESTAMP,
+    `weight` INT,
+    `price` INT,
+    PRIMARY KEY (`ocel_id`)
 );
 
-CREATE TABLE object_Package (
-	ocel_id varchar(50),
-    ocel_time DATETIME,
-    delivered BOOLEAN,
-    PRIMARY KEY (ocel_id)
+CREATE TABLE IF NOT EXISTS "object_Package" (
+	`ocel_id` TEXT,
+    `ocel_time` TIMESTAMP,
+    `delivered` BOOLEAN,
+    PRIMARY KEY (`ocel_id`)
 );
 
 # Insertion 
 
-INSERT event_map_type VALUES
+INSERT INTO event_map_type VALUES
 ('Receive Order','ReceiveOrder'),
 ('Pack Order','PackOrder'),
 ('Send Order','SendOrder'),
 ('Return Order','ReturnOrder');
 
-INSERT event_ VALUES
+INSERT INTO event VALUES
 ('rec_order1 ','Receive Order'),
 ('rec_order2','Receive order'),
 ('pack_order1','Pack order'),
@@ -122,12 +105,12 @@ INSERT event_ VALUES
 ('send_order1','send order'),
 ( 'send_order2','send order');
 
-Insert object_map_type values
+Insert INTO object_map_type values
 ('Order Form','OrderForm'),
 ('Book','Book'),
 ('Package','Package');
 
-Insert object values
+Insert INTO object values
 ('pack1','package'),
 ('pack2','package'),
 ('book1','book'),
@@ -135,45 +118,45 @@ Insert object values
 ('order_form1','Order Form'),
 ('order_form2','Order Form');
 
-Insert object_object values
+Insert INTO object_object values
 
 ('book1','pack1','book in package'),
 
 ('book2','pack2','book in package');
 
 
-Insert event_object values
+Insert INTO event_object values
 ('pack_order1'
 ,'pack1', 'create package'),
 ('pack_order2',
 'pack2','create package');
 
-insert event_ReceiveOrder values
-('rec_order1',"2023-08-15 19:30:10"),
-('rec_order2', "2023-08-16 07:22:36");
+insert INTO event_ReceiveOrder values
+('rec_order1',"2023-08-15T19:30:10.000Z"),
+('rec_order2', "2023-08-16T07:22:36.000Z");
 
-insert event_PackOrder  values
-('pack_order1',"2023-08-16 12:02:01"),
-('pack_order2',"2023-08-16 12:07:59");
+insert INTO event_PackOrder  values
+('pack_order1',"2023-08-16T12:02:01.000Z"),
+('pack_order2',"2023-08-16T12:07:59.000Z");
 
-insert event_SendOrder values
-('send_order1',"2023-08-16 12:11:14", true),
-('end_order2', "2023-08-16 12:12:03",false);
+insert INTO event_SendOrder values
+('send_order1',"2023-08-16T12:11:14.000Z", 1),
+('end_order2', "2023-08-16T12:12:03.000Z",0);
 
-insert object_OrderForm values
-('order_form1', "2023-08-16 12:00:09",1),
-('order_form2',"2023-08-16 11:33:17",3);
+insert INTO object_OrderForm values
+('order_form1', "2023-08-16T12:00:09.000Z",1),
+('order_form2',"2023-08-16T11:33:17.000Z",3);
 
-insert object_Book values
-('book1',"2023-08-16 13:59:41",1,99),
-('book2', "2023-08-16 12:27:29", 1,99);
+insert INTO object_Book values
+('book1',"2023-08-16T13:59:41.000Z",1,99),
+('book2', "2023-08-16T12:27:29.000Z", 1,99);
 
-insert object_Package values
-('pack1',"2023-08-16 15:54:37",true),
-('pack2',"2023-08-16 16:13:58",false);
+insert INTO object_Package values
+('pack1',"2023-08-16T15:54:37.000Z",1),
+('pack2',"2023-08-16T16:13:58.000Z",0);
 
 
-
+COMMIT;
 
 
 
