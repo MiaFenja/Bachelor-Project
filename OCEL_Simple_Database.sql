@@ -98,7 +98,7 @@ INSERT INTO event_map_type VALUES
 ('Return Order','ReturnOrder');
 
 INSERT INTO event VALUES
-('rec_order1 ','Receive Order'),
+('rec_order1','Receive Order'),
 ('rec_order2','Receive Order'),
 ('pack_order1','Pack Order'),
 ('pack_order2','Pack Order'),
@@ -141,7 +141,7 @@ insert INTO event_PackOrder  values
 
 insert INTO event_SendOrder values
 ('send_order1',"2023-08-16T12:11:14.000Z", 1),
-('end_order2', "2023-08-16T12:12:03.000Z",0);
+('send_order2', "2023-08-16T12:12:03.000Z",0);
 
 insert INTO object_OrderForm values
 ('order_form1', "2023-08-16T12:00:09.000Z",1),

@@ -106,31 +106,26 @@ def create_object(c):
                     `objectTypeID` TEXT,
                     PRIMARY KEY (`objectID`))""")
     
-    c.execute(f"""
+    c.execute(f"""INSERT INTO object
                  SELECT ocelbase.object.ocel_id AS objectID, 
                  objectType.objectTypeID FROM ocelbase.object LEFT JOIN objectType ON ocelbase.object.ocel_type = objectType.objectType""")
-    print(c.fetchall())
     connect.commit()
     
 def create_objectRelationEvent(c):
-    c.execute("""CREATE TABLE objectRelationEvent (
-                    objectRelationEventID VARCHAR(50),
-                    objectObjectID VARCHAR(50),
-                    eventID VARCHAR(50),
-                    OOEqualifier VARCHAR(50),
-                    PRIMARY KEY (objectRelationEventID))""")
-    
-    c.execute("""INSERT INTO objectRelationEvent (objectObjectID, eventID, objectRelationEventID)
-                 SELECT objectObject.objectObjectID, eventObject.eventID, CONCAT('ORE-',(@id := @id + 1)) FROM objectObject 
-                 NATURAL JOIN eventObject WHERE objectObject.fromObjectID = eventObject.objectID 
-                 OR objectObject.toObjectID = eventObject.objectID""")
+    c.execute("""CREATE TABLE "objectRelationEvent" (
+                    `objectRelationEventID` TEXT,
+                    `objectObjectID` TEXT,
+                    `eventID` TEXT,
+                    `OOEqualifier` TEXT,
+                    PRIMARY KEY (`objectRelationEventID`))""")
+    connect.commit()
 
 def create_objectAttribute(c):
-    c.execute("""CREATE TABLE objectAttribute (
-                    objectAttributeID VARCHAR(50),
-                    objectTypeID VARCHAR(50),
-                    objectAttributeName VARCHAR(50),
-                    PRIMARY KEY (objectAttributeID))""")
+    c.execute("""CREATE TABLE "objectAttribute" (
+                    `objectAttributeID` TEXT,
+                    `objectTypeID` TEXT,
+                    `objectAttributeName` TEXT,
+                    PRIMARY KEY (`objectAttributeID`))""")
     
     c.execute(f"""SELECT table_name FROM information_schema.tables 
                   WHERE table_name IN (SELECT CONCAT('object_',ocel_type_map) 
@@ -146,9 +141,16 @@ def create_objectAttribute(c):
         atrName = c.fetchall()
 
         for j in atrName:
-            c.execute(f"""INSERT INTO objectAttribute (objectTypeID,objectAttributeName,objectAttributeID)
-                         SELECT object.objectTypeID, '{j[0]}', CONCAT('OA-',(@id := @id + 1)) FROM object natural join {ocelbase}.{i[0]} 
+            c.execute(f"""INSERT INTO objectAttribute (objectTypeID,objectAttributeName)
+                         SELECT object.objectTypeID, '{j[0]}' FROM object natural join ocelbase.{i[0]} 
                          WHERE ocelbase.{i[0]}.ocel_id = object.objectID limit 1""")
+            c.execute(f"SELECT rowid from objectAttribute")
+            rowids = c.fetchall()
+            for i in rowids:
+                    c.execute(f"""UPDATE objectAttribute 
+                            SET objectAttributeID = "OA-{i[0]}" 
+                            WHERE rowid  = {i[0]}""")
+            connect.commit()
   
             
 
