@@ -1,10 +1,11 @@
 import mysql.connector
 mydb = mysql.connector.connect(
   host="localhost",
-  user="admin",
+  user="root",
   password="1234"
 )
 ocelbase = "OCEL"
+
 c = mydb.cursor()
 c.execute("DROP DATABASE IF EXISTS testing1")
 c.execute("CREATE DATABASE testing1")
@@ -27,9 +28,8 @@ def create_event_Ocel(c):
                     eventTime DATETIME, 
                     PRIMARY KEY (eventID))""")
     
-    c.execute(f"""SELECT table_name FROM information_schema.tables 
-                  WHERE table_name IN (SELECT CONCAT('event_',ocel_type_map) 
-                  FROM {ocelbase}.event_map_type)""")
+    c.execute(f"""SELECT CONCAT('event_',ocel_type_map) 
+                  FROM {ocelbase}.event_map_type""")
     
     names = c.fetchall()
     c.execute("""CREATE TABLE
