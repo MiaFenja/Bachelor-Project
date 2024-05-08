@@ -2,7 +2,7 @@ import sqlite3
 
 connect = sqlite3.connect("new.sqlite")
 c = connect.cursor()
-c.execute("ATTACH DATABASE 'OCEL_Simple_Database.db' as 'ocelbase'")
+c.execute("ATTACH DATABASE 'ContainerLogistics.sqlite' as 'ocelbase'")
 
 
 def create_eventType_Ocel(c):
@@ -35,14 +35,10 @@ def create_event_Ocel(c):
     print(names)
    
     for t in names:
-        c.execute(f"""INSERT INTO event
-                   SELECT ocel_id AS eventID, eventTypeID, ocel_time AS eventTime FROM ocelbase.event 
-                   NATURAL JOIN ocelbase.{t[0]} NATURAL JOIN eventType 
-                   WHERE eventType.eventType = ocelbase.event.ocel_type;
+        c.execute(f"""INSERT INTO event SELECT ocelbase.event.ocel_id, eventTypeID, ocel_time from ocelbase.event JOIN eventType ON ocel_type = eventType NATURAL JOIN ocelbase.{t[0]}
                    """)
-        print(c.fetchall())
         connect.commit()
-                  
+            
 
        
 
@@ -247,19 +243,5 @@ def create_eventAttributeValue(c):
 
 create_eventType_Ocel(c)
 create_event_Ocel(c)
-create_objectObject_Ocel(c)
-create_eventObject_Ocel(c)
-create_objectType(c)
-create_object(c)
-create_objectRelationEvent(c)
-create_objectAttribute(c)
-create_objectAttributeValue(c)
-create_objectAttributeValueEvent(c)
-create_eventAttribute(c)
-create_eventAttributeValue(c)
-c.execute("select * from objectObject")
-fetchh = c.fetchall()
-print(fetchh)
-mydb.commit()
 
 
