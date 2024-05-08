@@ -2,7 +2,7 @@ import sqlite3
 
 connect = sqlite3.connect("merged.sqlite")
 c = connect.cursor()
-c.execute("ATTACH DATABASE 'db/ocel2-p2p.sqlite' as 'ocelbase'")
+c.execute("ATTACH DATABASE 'db/OCEL_Simple_Database.db' as 'ocelbase'")
 
 
 def create_eventType_Ocel(c):
