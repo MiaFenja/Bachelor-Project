@@ -16,7 +16,6 @@ def create_eventType_Ocel(c):
     c.execute(f"SELECT rowid from eventType")
     rowids = c.fetchall()
     for i in rowids:
-        print(i)
         c.execute(f"""UPDATE eventType 
                   SET eventTypeID = "ET-{i[0]}" 
                   WHERE rowid  = {i[0]}""")
@@ -32,7 +31,6 @@ def create_event_Ocel(c):
                   FROM ocelbase.event_map_type""")
     
     names = c.fetchall()
-    print(names)
    
     for t in names:
         c.execute(f"""INSERT INTO event
@@ -40,7 +38,6 @@ def create_event_Ocel(c):
                    NATURAL JOIN ocelbase.{t[0]} NATURAL JOIN eventType 
                    WHERE eventType.eventType = ocelbase.event.ocel_type;
                    """)
-        print(c.fetchall())
         connect.commit()
                   
 
@@ -127,18 +124,21 @@ def create_objectAttribute(c):
                     `objectAttributeName` TEXT,
                     PRIMARY KEY (`objectAttributeID`))""")
     
-    c.execute(f"""SELECT table_name FROM information_schema.tables 
-                  WHERE table_name IN (SELECT CONCAT('object_',ocel_type_map) 
+    c.execute(f"""SELECT name FROM sqlite_master 
+                  WHERE name IN (SELECT 'object_' || ocel_type_map
                   FROM ocelbase.object_map_type)""")
     
     objNames = c.fetchall()
+    print("O:")
+    print(objNames)
 
     for i in objNames:
-        c.execute(f"""SELECT COLUMN_NAME
-                      FROM INFORMATION_SCHEMA.COLUMNS
-                      WHERE TABLE_SCHEMA = 'ocelbase' AND TABLE_NAME = '{i[0]}' 
-                      AND COLUMN_NAME != 'ocel_id' AND COLUMN_NAME != 'ocel_time'""")
+        c.execute(f"""SELECT name
+                      FROM pragma_table_info({i[0]})
+                      WHERE type = 'table' AND COLUMN_NAME != 'ocel_id' AND COLUMN_NAME != 'ocel_time'""")
         atrName = c.fetchall()
+        print("A:")
+        print(atrName)
 
         for j in atrName:
             c.execute(f"""INSERT INTO objectAttribute (objectTypeID,objectAttributeName)
@@ -146,26 +146,25 @@ def create_objectAttribute(c):
                          WHERE ocelbase.{i[0]}.ocel_id = object.objectID limit 1""")
             c.execute(f"SELECT rowid from objectAttribute")
             rowids = c.fetchall()
-            for i in rowids:
+            for k in rowids:
                     c.execute(f"""UPDATE objectAttribute 
-                            SET objectAttributeID = "OA-{i[0]}" 
-                            WHERE rowid  = {i[0]}""")
+                            SET objectAttributeID = "OA-{k[0]}" 
+                            WHERE rowid  = {k[0]}""")
             connect.commit()
   
             
 
 def create_objectAttributeValue(c):
-
-    c.execute("""CREATE TABLE objectAttributeValue (
-                    valueID VARCHAR(50),
-                    objectID VARCHAR(50),
-                    objectAttributeValTime DATETIME,
-                    objectAttributeID VARCHAR(50),
-                    AttributeValue VARCHAR(50),
-                    PRIMARY KEY (valueID))""")
+    c.execute("""CREATE TABLE "objectAttributeValue" (
+                    `valueID` TEXT,
+                    `objectID` TEXT,
+                    `objectAttributeValTime` TIMESTAMP,
+                    `objectAttributeID` TEXT,
+                    `AttributeValue` TEXT,
+                    PRIMARY KEY (`valueID`))""")
     
     c.execute(f"""SELECT name FROM sqlite_schema.tables 
-                  WHERE name IN (SELECT CONCAT('object_',ocel_type_map) 
+                  WHERE name IN (SELECT 'object_' || ocel_type_map
                   FROM ocelbase.object_map_type)""")
     
     objNames = c.fetchall()
@@ -176,34 +175,41 @@ def create_objectAttributeValue(c):
         atrName = c.fetchall()
         for j in atrName:
             c.execute(f"""INSERT INTO objectAttributeValue
-                         (objectID, objectAttributeValTime, objectAttributeID, AttributeValue, valueID)
+                         (objectID, objectAttributeValTime, objectAttributeID, AttributeValue)
                          SELECT ocelbase.{i[0]}.ocel_id AS objectID, 
                          ocelbase.{i[0]}.ocel_time AS objectAttributeValTime, objectAttributeID, 
-                         CONVERT(ocelbase.{i[0]}.{j[0]},VARCHAR(50)) AS AttributeValue, CONCAT('OAV-',(@id := @id + 1)) 
-                         FROM ocelbase.{i[0]} join (object,objectAttribute) ON ({ocelbase}.{i[0]}.ocel_id = object.objectID 
+                         CONVERT(ocelbase.{i[0]}.{j[0]},VARCHAR(50)) AS AttributeValue
+                         FROM ocelbase.{i[0]} join (object,objectAttribute) ON (ocelbase.{i[0]}.ocel_id = object.objectID 
                          AND object.objectTypeID = objectAttribute.objectTypeID AND objectAttribute.objectAttributeName = '{j[0]}')""")
+            c.execute(f"SELECT rowid from objectAttributeValue")
+            rowids = c.fetchall()
+            for k in rowids:
+                    c.execute(f"""UPDATE objectAttributeValue 
+                            SET valueID = "OAV-{k[0]}" 
+                            WHERE rowid  = {k[0]}""")
+            connect.commit()
 
 def create_objectAttributeValueEvent(c):
-    c.execute("""CREATE TABLE objectAttributeValueEvent(
-              valueID VARCHAR(50),
-              eventID VARCHAR(50),
-              OAEqualifier VARCHAR(50),
-              PRIMARY KEY(valueID,eventID))""")
+    c.execute("""CREATE TABLE "objectAttributeValueEvent" (
+              `valueID` TEXT,
+              `eventID` TEXT,
+              `OAEqualifier` TEXT,
+              PRIMARY KEY(`valueID`,`eventID`))""")
     
     c.execute("""INSERT INTO objectAttributeValueEvent(valueID,eventID) SELECT valueID, eventID 
               FROM objectAttributeValue NATURAL JOIN event WHERE eventTime = objectAttributeValTime""")
+    connect.commit()    
  
             
 def create_eventAttribute(c):
-    c.execute("""SET @id = 0""")
-    c.execute("""CREATE TABLE eventAttribute (
-                    eventAttributeID VARCHAR(50),
-                    eventTypeID VARCHAR(50),
-                    eventAttributeName VARCHAR(50),
-                    PRIMARY KEY (eventAttributeID))""")
+    c.execute("""CREATE TABLE "eventAttribute" (
+                    `eventAttributeID` TEXT,
+                    `eventTypeID` TEXT,
+                    `eventAttributeName` TEXT,
+                    PRIMARY KEY (`eventAttributeID`))""")
     
     c.execute(f"""SELECT table_name FROM information_schema.tables 
-                  WHERE table_name IN (SELECT CONCAT('event_',ocel_type_map) 
+                  WHERE table_name IN (SELECT 'event_' || ocel_type_map
                   FROM ocelbase.event_map_type)""")
     
     eventNames = c.fetchall()
@@ -216,33 +222,40 @@ def create_eventAttribute(c):
         atrName = c.fetchall()
 
         for j in atrName:
-            c.execute(f"""INSERT INTO eventAttribute (eventTypeID,eventAttributeName,eventAttributeID)
-                         SELECT event.eventTypeID, '{j[0]}', CONCAT('EA-',(@id := @id+1)) FROM event NATURAL JOIN {ocelbase}.{i[0]} 
-                         WHERE ocelbase.{i[0]}.ocel_id = event.eventID limit 1""")        
+            c.execute(f"""INSERT INTO eventAttribute (eventTypeID,eventAttributeName)
+                         SELECT event.eventTypeID, '{j[0]}' FROM event NATURAL JOIN ocelbase.{i[0]} 
+                         WHERE ocelbase.{i[0]}.ocel_id = event.eventID limit 1""")    
+            c.execute(f"SELECT rowid from eventAttribute")
+            rowids = c.fetchall()
+            for k in rowids:
+                    c.execute(f"""UPDATE eventAttribute
+                            SET eventAttributeID = "EA-{k[0]}" 
+                            WHERE rowid  = {k[0]}""")
+            connect.commit()    
 
 def create_eventAttributeValue(c):
-    c.execute("""CREATE TABLE eventAttributeValue (
-                    eventID VARCHAR(50),
-                    eventAttributeID VARCHAR(50),
-                    eventAttributeValue VARCHAR(50),
-                    PRIMARY KEY (eventID, eventAttributeValue)) """)        
+    c.execute("""CREATE TABLE "eventAttributeValue" (
+                    `eventID` TEXT,
+                    `eventAttributeID` TEXT,
+                    `eventAttributeValue` TEXT,
+                    PRIMARY KEY (`eventID`, `eventAttributeValue`)) """)        
 
     c.execute(f"""SELECT table_name FROM information_schema.tables 
-                  WHERE table_name IN (SELECT CONCAT('event_',ocel_type_map) 
+                  WHERE table_name IN (SELECT 'event_' || ocel_type_map
                   FROM ocelbase.event_map_type)""")
     
     eventNames = c.fetchall()
     for i in eventNames:
         c.execute(f"""SELECT COLUMN_NAME
                       FROM INFORMATION_SCHEMA.COLUMNS
-                      WHERE TABLE_SCHEMA = 'ocelbase' AND TABLE_NAME = 'i[0]' 
+                      WHERE TABLE_SCHEMA = 'ocelbase' AND TABLE_NAME = '{i[0]}' 
                       AND COLUMN_NAME != 'ocel_id' AND COLUMN_NAME != 'ocel_time'""")
         atrName = c.fetchall()
         for j in atrName:
             c.execute(f"""INSERT INTO eventAttributeValue
                          SELECT ocelbase.{i[0]}.ocel_id AS eventID, 
                          eventAttributeID, CONVERT(ocelbase.{i[0]}.{j[0]},VARCHAR(50)) AS eventAttributeValue 
-                         FROM ocelbase.{i[0]} join (event,eventAttribute) ON ({ocelbase}.{i[0]}.ocel_id = event.eventID 
+                         FROM ocelbase.{i[0]} join (event,eventAttribute) ON (ocelbase.{i[0]}.ocel_id = event.eventID 
                          AND event.eventTypeID = eventAttribute.eventTypeID AND eventAttribute.eventAttributeName = '{j[0]}')""")
 
 create_eventType_Ocel(c)
