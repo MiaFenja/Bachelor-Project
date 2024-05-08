@@ -6,7 +6,8 @@ c = connect.cursor()
 def drop_views(c):
     c.execute("""DROP VIEW IF EXISTS event_OCEL""")
     c.execute("""DROP VIEW IF EXISTS object_OCEL""")
-    c.execute("""DROP VIEW IF EXISTS objectObject_OCEL""")
+    c.execute("""DROP VIEW IF EXISTS object_object_OCEL""")
+    c.execute("""DROP VIEW IF EXISTS event_object_OCEL""")
     connect.commit()
 
 
@@ -24,7 +25,7 @@ def create_view_object(c):
     connect.commit()
 
 def create_view_object_object(c):
-    c.execute("""CREATE VIEW objectObject_OCEL AS SELECT objectObject.fromObjectID AS ocel_source_id, 
+    c.execute("""CREATE VIEW object_object_OCEL AS SELECT objectObject.fromObjectID AS ocel_source_id, 
                  objectObject.toObjectID AS ocel_target_id, objectObject.objectRelationType AS ocel_qualifier 
                  FROM objectObject""")
 
@@ -32,7 +33,9 @@ def create_view_objectMapType(c):
     return
 
 def create_view_eventObject(c):
-    return
+    c.execute("""CREATE VIEW event_object_OCEL AS SELECT eventObject.eventID AS ocel_event_id, 
+                 eventObject.objectID AS ocel_object_id, eventObject.OEqualifier AS ocel_qualifier 
+                 FROM eventObject""")
 
 def create_view_eventOcelTypes(c):
     return
@@ -50,7 +53,7 @@ create_view_eventObject(c)
 create_view_eventOcelTypes(c)
 create_view_objectOcelTypes(c)
 
-c.execute("select * from objectObject_OCEL")
+c.execute("select * from event_object_OCEL")
 print(c.fetchall())
 
 
