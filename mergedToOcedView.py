@@ -15,6 +15,7 @@ def create_view_event_OCED(c):
     connect.commit()
 
 def create_view_eventAttributeValue_OCED(c):
+    c.execute(f"""CREATE VIEW eventAttributeValue_OCED AS SELECT eventID,eventAttributeName,eventAttributeValue FROM eventAttributeValue NATURAL JOIN eventAttribute """)
     connect.commit()
 
 def create_view_eventObject_OCED(c):
@@ -35,6 +36,7 @@ def create_view_objectRelationEvent_OCED(c):
     connect.commit()
 
 def create_view_objectAttributeValue_OCED(c):
+    c.execute(f"""CREATE VIEW objectAttributeValue_OCED AS SELECT objectID,objectAttributeName,AttributeValue FROM objectAttributeValue NATURAL JOIN objectAttribute """)
     connect.commit()
 
 def create_view_objectAttributeValueEvent_OCED(c):
@@ -51,5 +53,5 @@ create_view_objectRelationEvent_OCED(c)
 create_view_objectAttributeValue_OCED(c)
 create_view_objectAttributeValueEvent_OCED(c)
 
-c.execute("select * from objectAttributeValueEvent_OCED")
+c.execute("select * from objectAttributeValue_OCED")
 print(c.fetchall())
