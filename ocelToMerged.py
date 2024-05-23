@@ -227,7 +227,7 @@ def create_eventAttributeValue(c):
                     `eventID` TEXT,
                     `eventAttributeID` TEXT,
                     `eventAttributeValue` TEXT,
-                    PRIMARY KEY (`eventID`, `eventAttributeValue`)) """)        
+                    PRIMARY KEY (`eventID`, `eventAttributeID`)) """)        
 
     c.execute(f"""SELECT 'event_' || ocel_type_map
                   FROM ocelbase.event_map_type""")
