@@ -54,7 +54,7 @@ CREATE TABLE IF NOT EXISTS "objectAttributeValue" (
 CREATE TABLE IF NOT EXISTS "objectAttributeValueEvent" (
     `eventID` TEXT,
     `objectAttributeValueID` TEXT,
-    `OEqualifier` TEXT,
+    `OAEqualifier` TEXT,
     PRIMARY KEY (`eventID`, `objectAttributeValueID`)
 );
 

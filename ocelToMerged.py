@@ -152,7 +152,7 @@ def create_objectAttributeValue(c):
                     `objectID` TEXT,
                     `objectAttributeValTime` TIMESTAMP,
                     `objectAttributeID` TEXT,
-                    `AttributeValue` TEXT,
+                    `attributeValue` TEXT,
                     PRIMARY KEY (`valueID`))""")
     
     c.execute(f"""SELECT 'object_' || ocel_type_map
