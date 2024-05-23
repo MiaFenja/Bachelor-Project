@@ -38,10 +38,24 @@ def create_objectAttributeValueEvent_OCED(c):
  
             
 def create_eventAttribute_OCED(c):
-    return
+    c.execute("""CREATE TABLE "eventAttribute" (
+                    `eventAttributeID` TEXT,
+                    `eventTypeID` TEXT,
+                    `eventAttributeName` TEXT,
+                    PRIMARY KEY (`eventAttributeID`))""")
+    c.execute("""SELECT DISTINCT eventAttributeName FROM ocedbase.eventAttributeValue""")
+    atrnames =     
 
 
 def create_eventAttributeValue_OCED(c):
+    c.execute("""CREATE TABLE eventAttributeValue (
+                    eventID VARCHAR(50),
+                    eventAttributeID VARCHAR(50),
+                    eventAttributeValue VARCHAR(50),
+                    PRIMARY KEY (eventID, eventAttributeValue)) """)  
+    c.execute(f"""SELECT DISTINCT eventAttributeName FROM eventAttribute)     
+    c.execute(f""" INSERT INTO eventAttributeValue )
+
    return
 
  
