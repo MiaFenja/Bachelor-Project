@@ -73,7 +73,7 @@ def create_eventObject_Ocel(c,connect):
                   FROM ocelbase.event_object""")
     connect.commit()
     
-def create_objectType(c,connect):
+def create_objectType_Ocel(c,connect):
 
     c.execute("""CREATE TABLE "objectType" (
                     `objectTypeID` TEXT,
@@ -90,7 +90,7 @@ def create_objectType(c,connect):
                   WHERE rowid  = {i[0]}""")
     connect.commit()
 
-def create_object(c,connect):
+def create_object_Ocel(c,connect):
     c.execute("""CREATE TABLE "object" (
                     `objectID` TEXT,
                     `objectTypeID` TEXT,
@@ -101,7 +101,7 @@ def create_object(c,connect):
                  objectType.objectTypeID FROM ocelbase.object LEFT JOIN objectType ON ocelbase.object.ocel_type = objectType.objectType""")
     connect.commit()
     
-def create_objectRelationEvent(c,connect):
+def create_objectRelationEvent_Ocel(c,connect):
     c.execute("""CREATE TABLE "objectRelationEvent" (
                     `objectRelationEventID` TEXT,
                     `objectObjectID` TEXT,
@@ -110,7 +110,7 @@ def create_objectRelationEvent(c,connect):
                     PRIMARY KEY (`objectRelationEventID`))""")
     connect.commit()
 
-def create_objectAttribute(c,connect):
+def create_objectAttribute_Ocel(c,connect):
     c.execute("""CREATE TABLE "objectAttribute" (
                     `objectAttributeID` TEXT,
                     `objectTypeID` TEXT,
@@ -142,7 +142,7 @@ def create_objectAttribute(c,connect):
   
             
 
-def create_objectAttributeValue(c,connect):
+def create_objectAttributeValue_Ocel(c,connect):
     c.execute("""CREATE TABLE "objectAttributeValue" (
                     `valueID` TEXT,
                     `objectID` TEXT,
@@ -176,7 +176,7 @@ def create_objectAttributeValue(c,connect):
                             WHERE rowid  = {k[0]}""")
             connect.commit()
 
-def create_objectAttributeValueEvent(c,connect):
+def create_objectAttributeValueEvent_Ocel(c,connect):
     c.execute("""CREATE TABLE "objectAttributeValueEvent" (
               `valueID` TEXT,
               `eventID` TEXT,
@@ -188,7 +188,7 @@ def create_objectAttributeValueEvent(c,connect):
     connect.commit()    
  
             
-def create_eventAttribute(c,connect):
+def create_eventAttribute_Ocel(c,connect):
     c.execute("""CREATE TABLE "eventAttribute" (
                     `eventAttributeID` TEXT,
                     `eventTypeID` TEXT,
@@ -218,7 +218,7 @@ def create_eventAttribute(c,connect):
                             WHERE rowid  = {k[0]}""")
             connect.commit()    
 
-def create_eventAttributeValue(c,connect):
+def create_eventAttributeValue_Ocel(c,connect):
     c.execute("""CREATE TABLE "eventAttributeValue" (
                     `eventID` TEXT,
                     `eventAttributeID` TEXT,
