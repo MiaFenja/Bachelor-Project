@@ -5,11 +5,29 @@ c = connect.cursor()
 c.execute("ATTACH DATABASE 'db/OCED_Simple_Database.db' as 'ocedbase'")
 
 def create_eventType_OCED(c):
-    return
+    c.execute("""CREATE TABLE "eventType" (
+                `eventTypeID` TEXT PRIMARY KEY,
+                `eventType` TEXT
+                )""")
+    
+    c.execute(f"""INSERT INTO eventType(eventType)
+              SELECT DISTINCT eventType FROM ocedbase.event""")
+    c.execute(f"SELECT rowid from eventType")
+    rowids = c.fetchall()
+    for i in rowids:
+        c.execute(f"""UPDATE eventType 
+                  SET eventTypeID = "ET-{i[0]}" 
+                  WHERE rowid  = {i[0]}""")
+    connect.commit()
 
 def create_event_OCED(c):
-    return
-       
+    c.execute("""CREATE TABLE "event" (
+                    `eventID` TEXT PRIMARY KEY, 
+                    `eventTypeID` TEXT, 
+                    `eventTime` TIMESTAMP)""")
+    
+    c.execute("""INSERT INTO event SELECT eventID, eventTypeID, timestamp AS eventTime FROM ocedbase.event NATURAL JOIN eventType""")
+    connect.commit()
 
 def create_objectObject_OCED(c):
     return
@@ -71,6 +89,6 @@ create_objectAttributeValue_OCED(c)
 create_objectAttributeValueEvent_OCED(c)
 create_eventAttribute_OCED(c)
 create_eventAttributeValue_OCED(c)
-c.execute("select * from objectObject")
+c.execute("select * from event")
 fetchh = c.fetchall()
 
