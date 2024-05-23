@@ -4,7 +4,7 @@ connect = sqlite3.connect("merged.sqlite")
 c = connect.cursor()
 c.execute("ATTACH DATABASE 'db/OCED_Simple_Database.db' as 'ocedbase'")
 
-def create_eventType_OCED(c):
+def create_eventType_OCED(c,connect):
     c.execute("""CREATE TABLE "eventType" (
                 `eventTypeID` TEXT PRIMARY KEY,
                 `eventType` TEXT
@@ -20,7 +20,7 @@ def create_eventType_OCED(c):
                   WHERE rowid  = {i[0]}""")
     connect.commit()
 
-def create_event_OCED(c):
+def create_event_OCED(c,connect):
     c.execute("""CREATE TABLE "event" (
                     `eventID` TEXT PRIMARY KEY, 
                     `eventTypeID` TEXT, 
@@ -29,7 +29,7 @@ def create_event_OCED(c):
     c.execute("""INSERT INTO event SELECT eventID, eventTypeID, timestamp AS eventTime FROM ocedbase.event NATURAL JOIN eventType""")
     connect.commit()
 
-def create_objectObject_OCED(c):
+def create_objectObject_OCED(c,connect):
     c.execute("""CREATE TABLE "objectObject" (
                     `objectObjectID` TEXT,
                     `fromObjectID` TEXT, 
@@ -39,7 +39,7 @@ def create_objectObject_OCED(c):
     c.execute("""INSERT INTO objectObject SELECT * FROM ocedbase.objectObject""")
     connect.commit()
 
-def create_eventObject_OCED(c):
+def create_eventObject_OCED(c,connect):
     c.execute("""CREATE TABLE "eventObject" (
                     `eventID` TEXT, 
                     `objectID` TEXT,
@@ -48,7 +48,7 @@ def create_eventObject_OCED(c):
     c.execute("""INSERT INTO eventObject SELECT eventID, objectID, EOqualifier AS OEqualifier FROM ocedbase.eventObject""")
     connect.commit()
     
-def create_objectType_OCED(c):
+def create_objectType_OCED(c,connect):
     c.execute("""CREATE TABLE "objectType" (
                     `objectTypeID` TEXT,
                     `objectType` TEXT,
@@ -64,7 +64,7 @@ def create_objectType_OCED(c):
                   WHERE rowid  = {i[0]}""")
     connect.commit()
 
-def create_object_OCED(c):
+def create_object_OCED(c,connect):
     c.execute("""CREATE TABLE "object" (
                     `objectID` TEXT,
                     `objectTypeID` TEXT,
@@ -72,7 +72,7 @@ def create_object_OCED(c):
     c.execute("""INSERT INTO object SELECT objectID, objectTypeID FROM ocedbase.object NATURAL JOIN objectType""")
     connect.commit()
 
-def create_objectRelationEvent_OCED(c):
+def create_objectRelationEvent_OCED(c,connect):
     c.execute("""CREATE TABLE "objectRelationEvent" (
                     `objectRelationEventID` TEXT,
                     `objectObjectID` TEXT,
@@ -88,7 +88,7 @@ def create_objectRelationEvent_OCED(c):
                   WHERE rowid  = {i[0]}""")
     connect.commit()
 
-def create_objectAttribute_OCED(c):
+def create_objectAttribute_OCED(c,connect):
     c.execute("""CREATE TABLE "objectAttribute" (
                     `objectAttributeID` TEXT,
                     `objectTypeID` TEXT,
@@ -105,7 +105,7 @@ def create_objectAttribute_OCED(c):
     connect.commit()
             
 
-def create_objectAttributeValue_OCED(c):
+def create_objectAttributeValue_OCED(c,connect):
     c.execute("""CREATE TABLE "objectAttributeValue" (
                     `valueID` TEXT,
                     `objectID` TEXT,
@@ -118,7 +118,7 @@ def create_objectAttributeValue_OCED(c):
                  FROM ocedbase.objectAttributeValue NATURAL JOIN objectAttribute""")
     connect.commit()
 
-def create_objectAttributeValueEvent_OCED(c):
+def create_objectAttributeValueEvent_OCED(c,connect):
     c.execute("""CREATE TABLE "objectAttributeValueEvent" (
               `valueID` TEXT,
               `eventID` TEXT,
@@ -129,7 +129,7 @@ def create_objectAttributeValueEvent_OCED(c):
     connect.commit()
  
             
-def create_eventAttribute_OCED(c):
+def create_eventAttribute_OCED(c,connect):
     c.execute("""CREATE TABLE "eventAttribute" (
                     `eventAttributeID` TEXT,
                     `eventTypeID` TEXT,
@@ -146,7 +146,7 @@ def create_eventAttribute_OCED(c):
     connect.commit()   
 
 
-def create_eventAttributeValue_OCED(c):
+def create_eventAttributeValue_OCED(c,connect):
     c.execute("""CREATE TABLE "eventAttributeValue" (
                     `eventID` TEXT,
                     `eventAttributeID` TEXT,
@@ -158,18 +158,3 @@ def create_eventAttributeValue_OCED(c):
     connect.commit()
 
  
-create_eventType_OCED(c)
-create_event_OCED(c)
-create_objectObject_OCED(c)
-create_eventObject_OCED(c)
-create_objectType_OCED(c)
-create_object_OCED(c)
-create_objectRelationEvent_OCED(c)
-create_objectAttribute_OCED(c)
-create_objectAttributeValue_OCED(c)
-create_objectAttributeValueEvent_OCED(c)
-create_eventAttribute_OCED(c)
-create_eventAttributeValue_OCED(c)
-c.execute("select * from objectAttribute")
-fetchh = c.fetchall()
-
