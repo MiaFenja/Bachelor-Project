@@ -43,9 +43,9 @@ def create_eventObject_OCED(c,connect):
     c.execute("""CREATE TABLE "eventObject" (
                     `eventID` TEXT, 
                     `objectID` TEXT,
-                    `OEqualifier` TEXT, 
+                    `EOqualifier` TEXT, 
                     PRIMARY KEY (`eventID`,`objectID`))""")
-    c.execute("""INSERT INTO eventObject SELECT eventID, objectID, EOqualifier AS OEqualifier FROM ocedbase.eventObject""")
+    c.execute("""INSERT INTO eventObject SELECT eventID, objectID, EOqualifier FROM ocedbase.eventObject""")
     connect.commit()
     
 def create_objectType_OCED(c,connect):

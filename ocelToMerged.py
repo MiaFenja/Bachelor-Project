@@ -63,13 +63,13 @@ def create_eventObject_Ocel(c,connect):
     c.execute("""CREATE TABLE "eventObject" (
                     `eventID` TEXT, 
                     `objectID` TEXT,
-                    `OEqualifier` TEXT, 
+                    `EOqualifier` TEXT, 
                     PRIMARY KEY (`eventID`,`objectID`))""")
     
     c.execute(f"""INSERT INTO eventObject 
                   SELECT ocelbase.event_object.ocel_event_id AS eventID, 
                   ocelbase.event_object.ocel_object_id AS objectID, 
-                  ocelbase.event_object.ocel_qualifier AS OEqualifier 
+                  ocelbase.event_object.ocel_qualifier AS EOqualifier 
                   FROM ocelbase.event_object""")
     connect.commit()
     
