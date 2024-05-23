@@ -128,7 +128,20 @@ def create_objectAttributeValueEvent_OCED(c):
  
             
 def create_eventAttribute_OCED(c):
-    return 
+    c.execute("""CREATE TABLE "eventAttribute" (
+                    `eventAttributeID` TEXT,
+                    `eventTypeID` TEXT,
+                    `eventAttributeName` TEXT,
+                    PRIMARY KEY (`eventAttributeID`))""")
+    c.execute("INSERT INTO eventAttribute(eventTypeID,eventAttributeName) SELECT DISTINCT eventTypeID, eventAttributeName FROM eventType NATURAL JOIN event NAtural JOIN ocedbase.eventAttributeValue")
+    c.execute(f"SELECT rowid from eventAttribute")
+    rowids = c.fetchall()
+
+    for k in rowids:
+        c.execute(f"""UPDATE eventAttribute
+                    SET eventAttributeID = "EA-{k[0]}" 
+                    WHERE rowid  = {k[0]}""")
+    connect.commit()   
 
 
 def create_eventAttributeValue_OCED(c):
