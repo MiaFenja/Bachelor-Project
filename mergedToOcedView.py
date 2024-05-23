@@ -53,5 +53,5 @@ create_view_objectRelationEvent_OCED(c)
 create_view_objectAttributeValue_OCED(c)
 create_view_objectAttributeValueEvent_OCED(c)
 
-c.execute("select * from objectRelationEvent_OCED")
+c.execute("select * from objectAttributeValue_OCED")
 print(c.fetchall())

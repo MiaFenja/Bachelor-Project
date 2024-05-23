@@ -37,5 +37,5 @@ def create_from_ocel(c,base,connect,type):
 def main():
     connect = sqlite3.connect("merged.sqlite")
     c = connect.cursor()
-    create_from_ocel(c,"'db/OCED_Simple_Database.db'",connect,'oced')
+    create_from_ocel(c,"'db/OCEL_big_data.db'",connect,'ocel')
 main()
