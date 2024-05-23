@@ -8,11 +8,10 @@ CREATE TABLE IF NOT EXISTS "event" (
 );
 
 CREATE TABLE IF NOT EXISTS "eventAttributeValue" (
-    `eventAttributeValueID` TEXT,
     `eventID` TEXT,
     `eventAttributeName` TEXT,
     `eventAttributeValue` TEXT,
-    PRIMARY KEY (`eventAttributeValueID`)
+    PRIMARY KEY (`eventID`, `eventAttributeName`)
 );
 
 CREATE TABLE IF NOT EXISTS "eventObject" (
@@ -69,14 +68,14 @@ INSERT INTO event VALUES
 ('clean_bathroom2', 'Clean Bathroom', "2024-04-01T09:15:24.000Z");
 
 INSERT INTO eventAttributeValue VALUES
-('EAV-1', 'vacuum1', 'finished', '1'),
-('EAV-2', 'vacuum2', 'finished', '0'),
-('EAV-3', 'make_bed1', 'finished', '1'),
-('EAV-4', 'make_bed2', 'finished', '1'),
-('EAV-5', 'make_bed1', 'chocolate', '1'),
-('EAV-6', 'make_bed2', 'chocolate', '0'),
-('EAV-7', 'clean_bathroom1', 'finished', '1'),
-('EAV-8', 'clean_bathroom2', 'finished', '1');
+('vacuum1', 'finished', '1'),
+('vacuum2', 'finished', '0'),
+('make_bed1', 'finished', '1'),
+('make_bed2', 'finished', '1'),
+('make_bed1', 'chocolate', '1'),
+('make_bed2', 'chocolate', '0'),
+('clean_bathroom1', 'finished', '1'),
+('clean_bathroom2', 'finished', '1');
 
 INSERT INTO object VALUES
 ('hotel_room1', 'Hotel Room'),

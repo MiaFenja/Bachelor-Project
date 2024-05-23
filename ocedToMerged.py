@@ -124,7 +124,9 @@ def create_objectAttributeValueEvent_OCED(c):
               `eventID` TEXT,
               `OAEqualifier` TEXT,
               PRIMARY KEY(`valueID`,`eventID`))""")
-    
+    c.execute("""INSERT INTO objectAttributeValueEvent SELECT objectAttributeValueID AS valueID, eventID, OAEqualifier 
+                 FROM ocedbase.objectAttributeValueEvent""")
+    connect.commit()
  
             
 def create_eventAttribute_OCED(c):
@@ -145,7 +147,15 @@ def create_eventAttribute_OCED(c):
 
 
 def create_eventAttributeValue_OCED(c):
-    return
+    c.execute("""CREATE TABLE "eventAttributeValue" (
+                    `eventID` TEXT,
+                    `eventAttributeID` TEXT,
+                    `eventAttributeValue` TEXT,
+                    PRIMARY KEY (`eventID`, `eventAttributeID`)) """) 
+    c.execute("""INSERT INTO eventAttributeValue SELECT ocedbase.eventAttributeValue.eventID, eventAttribute.eventAttributeID, 
+                 ocedbase.eventAttributeValue.eventAttributeValue 
+                 FROM ocedbase.eventAttributeValue NATURAL JOIN event NATURAL JOIN eventAttribute""")
+    connect.commit()
 
  
 create_eventType_OCED(c)
