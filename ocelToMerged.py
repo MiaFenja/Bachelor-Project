@@ -1,11 +1,7 @@
 import sqlite3
 
-connect = sqlite3.connect("merged.sqlite")
-c = connect.cursor()
-c.execute("ATTACH DATABASE 'db/OCEL_Simple_Database.db' as 'ocelbase'")
 
-
-def create_eventType_Ocel(c):
+def create_eventType_Ocel(c,connect):
     c.execute("""CREATE TABLE "eventType" (
                 `eventTypeID` TEXT PRIMARY KEY,
                 `eventType` TEXT
@@ -21,7 +17,7 @@ def create_eventType_Ocel(c):
                   WHERE rowid  = {i[0]}""")
     connect.commit()
 
-def create_event_Ocel(c):
+def create_event_Ocel(c,connect):
     c.execute("""CREATE TABLE "event" (
                     `eventID` TEXT PRIMARY KEY, 
                     `eventTypeID` TEXT, 
@@ -40,7 +36,7 @@ def create_event_Ocel(c):
 
        
 
-def create_objectObject_Ocel(c):
+def create_objectObject_Ocel(c,connect):
     c.execute("""CREATE TABLE "objectObject" (
                     `objectObjectID` TEXT,
                     `fromObjectID` TEXT, 
@@ -63,7 +59,7 @@ def create_objectObject_Ocel(c):
                   WHERE rowid  = {i[0]}""")
     connect.commit()
 
-def create_eventObject_Ocel(c):
+def create_eventObject_Ocel(c,connect):
     c.execute("""CREATE TABLE "eventObject" (
                     `eventID` TEXT, 
                     `objectID` TEXT,
@@ -77,7 +73,7 @@ def create_eventObject_Ocel(c):
                   FROM ocelbase.event_object""")
     connect.commit()
     
-def create_objectType(c):
+def create_objectType_Ocel(c,connect):
 
     c.execute("""CREATE TABLE "objectType" (
                     `objectTypeID` TEXT,
@@ -94,7 +90,7 @@ def create_objectType(c):
                   WHERE rowid  = {i[0]}""")
     connect.commit()
 
-def create_object(c):
+def create_object_Ocel(c,connect):
     c.execute("""CREATE TABLE "object" (
                     `objectID` TEXT,
                     `objectTypeID` TEXT,
@@ -105,7 +101,7 @@ def create_object(c):
                  objectType.objectTypeID FROM ocelbase.object LEFT JOIN objectType ON ocelbase.object.ocel_type = objectType.objectType""")
     connect.commit()
     
-def create_objectRelationEvent(c):
+def create_objectRelationEvent_Ocel(c,connect):
     c.execute("""CREATE TABLE "objectRelationEvent" (
                     `objectRelationEventID` TEXT,
                     `objectObjectID` TEXT,
@@ -114,7 +110,7 @@ def create_objectRelationEvent(c):
                     PRIMARY KEY (`objectRelationEventID`))""")
     connect.commit()
 
-def create_objectAttribute(c):
+def create_objectAttribute_Ocel(c,connect):
     c.execute("""CREATE TABLE "objectAttribute" (
                     `objectAttributeID` TEXT,
                     `objectTypeID` TEXT,
@@ -146,7 +142,7 @@ def create_objectAttribute(c):
   
             
 
-def create_objectAttributeValue(c):
+def create_objectAttributeValue_Ocel(c,connect):
     c.execute("""CREATE TABLE "objectAttributeValue" (
                     `valueID` TEXT,
                     `objectID` TEXT,
@@ -180,7 +176,7 @@ def create_objectAttributeValue(c):
                             WHERE rowid  = {k[0]}""")
             connect.commit()
 
-def create_objectAttributeValueEvent(c):
+def create_objectAttributeValueEvent_Ocel(c,connect):
     c.execute("""CREATE TABLE "objectAttributeValueEvent" (
               `valueID` TEXT,
               `eventID` TEXT,
@@ -192,7 +188,7 @@ def create_objectAttributeValueEvent(c):
     connect.commit()    
  
             
-def create_eventAttribute(c):
+def create_eventAttribute_Ocel(c,connect):
     c.execute("""CREATE TABLE "eventAttribute" (
                     `eventAttributeID` TEXT,
                     `eventTypeID` TEXT,
@@ -222,7 +218,7 @@ def create_eventAttribute(c):
                             WHERE rowid  = {k[0]}""")
             connect.commit()    
 
-def create_eventAttributeValue(c):
+def create_eventAttributeValue_Ocel(c,connect):
     c.execute("""CREATE TABLE "eventAttributeValue" (
                     `eventID` TEXT,
                     `eventAttributeID` TEXT,
@@ -246,18 +242,5 @@ def create_eventAttributeValue(c):
                          AND event.eventTypeID = eventAttribute.eventTypeID AND eventAttribute.eventAttributeName = '{j[0]}')""")
     connect.commit()
 
-create_eventType_Ocel(c)
-create_event_Ocel(c)
-create_objectObject_Ocel(c)
-create_eventObject_Ocel(c)
-create_objectType(c)
-create_object(c)
-create_objectRelationEvent(c)
-create_objectAttribute(c)
-create_objectAttributeValue(c)
-create_objectAttributeValueEvent(c)
-create_eventAttribute(c)
-create_eventAttributeValue(c)
-c.execute("select * from objectObject")
-fetchh = c.fetchall()
+
 
