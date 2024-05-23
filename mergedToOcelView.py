@@ -17,7 +17,7 @@ def create_view_event_OCEL(c):
     connect.commit()
 
 def get(data):
-    return data.replace(" ", "_")
+    return data.replace(" ", "")
 
 def create_view_eventMapType_OCEL(c):
     connect.create_function("get",1,get)
@@ -59,18 +59,45 @@ def create_view_eventOcelTypes_OCEL(c):
 
 def create_view_objectOcelTypes_OCEL(c):
     c.execute("""SELECT objectTypeID, get(objectType) FROM objectType""")
-    eventTypes = c.fetchall()
+    objectTypes = c.fetchall()
 
-    for i in eventTypes:
-        c.execute(f"""SELECT objectAttributeName, objectAttributeID FROM objectAttribute WHERE objectTypeID = '{i[0]}'""")
+    for i in objectTypes:
+        c.execute(f"""SELECT objectAttributeName FROM objectAttribute WHERE objectTypeID = '{i[0]}'""")
         attributeNames = c.fetchall()
+        print("HER:")
+        print(attributeNames)
+        c.execute(f"""SELECT objectAttributeName, attributeValue FROM objectAttribute NATURAL JOIN objectAttributeValue WHERE objectTypeID = '{i[0]}'""")
+        namesAndValues = c.fetchall()
+        boolCheck = [True for l in range(len(namesAndValues))]
+        print("OG:")
+        print(namesAndValues)
         str = ""
+        print(boolCheck)
         if len(attributeNames) > 0:
             for j in attributeNames:
-                str += ", ( SELECT attributeValue AS " + j[0] + " FROM objectAttributeValue WHERE objectAttributeValue.objectAttributeID = '"+ j[1] +"') "
+                print("Im in j")
+                index=0
+                for k in namesAndValues:
+                    print("im in k")
+                    print(k)
+                    print(k[0])
+                    print(j[0])
+                    print(index)
+                    print(boolCheck[index])
+                    if k[0] == j[0] and boolCheck[index] == True:
+                        print("if is true")
+                        str += ", " + k[1] + " AS " + j[0] 
+                        boolCheck[index] = False
+                        break
+                    index += 1
+                        
+        print(namesAndValues)
+        print(boolCheck)
         c.execute(f"""CREATE VIEW object_{i[1]}_OCEL AS SELECT object.objectID AS ocel_id, objectAttributeValue.objectAttributeValTime AS ocel_time {str} 
-                      FROM object NATURAL JOIN objectAttributeValue NATURAL JOIN objectAttribute WHERE object.objectTypeID = '{i[0]}'""")
-    connect.commit()
+                      FROM object NATURAL JOIN objectAttributeValue NATURAL JOIN objectAttribute WHERE object.objectTypeID = '{i[0]}' 
+                      AND object.objectID = objectAttributeValue.objectID 
+                      GROUP BY object.objectID""")
+        connect.commit()
 
 drop_views_OCEL(c)
 create_view_event_OCEL(c)
@@ -79,10 +106,10 @@ create_view_object_OCEL(c)
 create_view_object_object_OCEL(c)
 create_view_objectMapType_OCEL(c)
 create_view_eventObject_OCEL(c)
-# create_view_eventOcelTypes_OCEL(c)
-# create_view_objectOcelTypes_OCEL(c)
+create_view_eventOcelTypes_OCEL(c)
+create_view_objectOcelTypes_OCEL(c)
 
-c.execute("select * from event_OCEL")
+c.execute("select * from object_Order_Form_OCEL")
 print(c.fetchall())
 
 
