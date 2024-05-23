@@ -61,12 +61,12 @@ CREATE TABLE IF NOT EXISTS "objectAttributeValueEvent" (
 # Insertion 
 
 INSERT INTO event VALUES
-('vacuum1', 'ET1', "2024-03-20T10:30:18.000Z"),
-('vacuum2', 'ET1', "2024-04-01T09:36:51.000Z"),
-('make_bed1', 'ET2', "2024-03-20T10:40:33.000Z"),
-('make_bed2', 'ET2', "2024-04-01T09:30:47.000Z"),
-('clean_bathroom1', 'ET3', "2024-03-20T10:45:03.000Z"),
-('clean_bathroom2', 'ET3', "2024-04-01T09:15:24.000Z");
+('vacuum1', 'Vacuum', "2024-03-20T10:30:18.000Z"),
+('vacuum2', 'Vacuum', "2024-04-01T09:36:51.000Z"),
+('make_bed1', 'Make Bed', "2024-03-20T10:40:33.000Z"),
+('make_bed2', 'Make Bed', "2024-04-01T09:30:47.000Z"),
+('clean_bathroom1', 'Clean Bathroom', "2024-03-20T10:45:03.000Z"),
+('clean_bathroom2', 'Clean Bathroom', "2024-04-01T09:15:24.000Z");
 
 INSERT INTO eventAttributeValue VALUES
 ('EAV-1', 'vacuum1', 'finished', '1'),
@@ -79,14 +79,14 @@ INSERT INTO eventAttributeValue VALUES
 ('EAV-8', 'clean_bathroom2', 'finished', '1');
 
 INSERT INTO object VALUES
-('hotel_room1', 'OT1'),
-('hotel_room2', 'OT1'),
-('vacuum_cleaner1', 'OT2'),
-('cleaner1', 'OT3'),
-('cleaner2', 'OT3'),
-('cleaner3', 'OT3'),
-('chocolate1', 'OT4'),
-('chocolate2', 'OT4');
+('hotel_room1', 'Hotel Room'),
+('hotel_room2', 'Hotel Room'),
+('vacuum_cleaner1', 'Vacuum Cleaner'),
+('cleaner1', 'Cleaner'),
+('cleaner2', 'Cleaner'),
+('cleaner3', 'Cleaner'),
+('chocolate1', 'Chocolate'),
+('chocolate2', 'Chocolate');
 
 INSERT INTO eventObject VALUES
 ('vacuum1', 'vacuum_cleaner1', 'vacuum room'),
