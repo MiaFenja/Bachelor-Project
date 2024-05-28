@@ -1,5 +1,4 @@
 import mysql.connector
-import triggers
 connect = mysql.connector.connect(
   host="localhost",
   user="root",
@@ -122,7 +121,14 @@ def create_objectAttribute_OCED(c,connect):
         print(oa[0])
         c.execute(f"""INSERT INTO objectAttribute
                   values(CONCAT('OA-',(@id := @id + 1)),'{oa[0]}', '{oa[1]}')""")
-
+    c.execute(f"""USE {ocedbase}""")
+    c.execute(f"""CREATE TRIGGER objectatTrigger AFTER INSERT ON objectAttributeValue FOR EACH ROW 
+              INSERT testing1.objectAttribute
+      SELECT DISTINCT (SELECT CONCAT('OA-',(Convert(SUBSTRING(max(testing1.objectAttribute.objectAttributeID),4),INTEGER)+1)) FROM testing1.objectAttribute)
+, objectTypeID, new.objectAttributeName
+               FROM testing1.objectType NATURAL JOIN testing1.object NATURAL JOIN objectAttributeValue
+               WHERE new.objectAttributeName = objectAttributeName and (objectTypeID NOT IN (SELECT objectTypeID FROM testing1.objectAttribute) OR new.objectAttributeName NOT IN (SELECT objectAttributeName FROM testing1.objectAttribute))"""  )
+    c.execute(f"""USE testing1""")
     connect.commit()
             
 
@@ -171,8 +177,14 @@ def create_eventAttribute_OCED(c,connect):
     for ea in eventat:
         c.execute(f"""INSERT INTO eventAttribute
                   values(CONCAT('EA-',(@id := @id + 1)),'{ea[0]}', '{ea[1]}')""")
-
-    
+    c.execute(f"""USE {ocedbase}""")
+    c.execute(f"""CREATE TRIGGER eventatTrigger AFTER INSERT ON eventAttributeValue FOR EACH ROW 
+              INSERT testing1.eventAttribute
+      SELECT DISTINCT (SELECT CONCAT('EA-',(Convert(SUBSTRING(max(testing1.eventAttribute.eventAttributeID),4),INTEGER)+1)) FROM testing1.eventAttribute)
+, eventTypeID, new.eventAttributeName
+               FROM testing1.eventType NATURAL JOIN testing1.event NATURAL JOIN eventAttributeValue
+               WHERE new.eventAttributeName = eventAttributeName and (eventTypeID NOT IN (SELECT eventTypeID FROM testing1.eventAttribute) OR new.eventAttributeName NOT IN (SELECT eventAttributeName FROM testing1.eventAttribute))"""  )
+    c.execute(f"""USE testing1""")
     connect.commit()
 
 
