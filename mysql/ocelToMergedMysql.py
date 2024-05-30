@@ -1,5 +1,4 @@
 import mysql.connector
-import triggers
 connect = mysql.connector.connect(
   host="localhost",
   user="root",

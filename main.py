@@ -37,5 +37,9 @@ def create_from_ocel(c,base,connect,type):
 def main():
     connect = sqlite3.connect("merged.sqlite")
     c = connect.cursor()
+<<<<<<< Updated upstream
     create_from_ocel(c,"'db/OCED_Simple_Database.db'",connect,'oced')
+=======
+    create_from_ocel(c,"'db/OCEL_Simple_Database.db'",connect,'ocel')
+>>>>>>> Stashed changes
 main()

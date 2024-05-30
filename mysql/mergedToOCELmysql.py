@@ -45,37 +45,43 @@ def create_view_eventObject_OCEL(c):
 
 def create_view_eventOcelTypes_OCEL(c):
     c.execute("SELECT eventTypeID FROM eventType")
-    objectTypes = c.fetchall()
-    for e in objectTypes:
+    eventTypes = c.fetchall()
+
+    for e in eventTypes:
         c.execute(f"SELECT eventAttributeName from eventAttribute WHERE eventTypeID = '{e[0]}'")
         allAttribute = c.fetchall()
-        list = []
-        for a in allAttribute:
-            list.append(f"event_{a[0]}_{e[0].replace("-","")}_view")
-           
-            c.execute(f"CREATE VIEW event_{a[0]}_{e[0].replace("-","")}_view AS SELECT eventID as ocel_id, eventTime as ocel_time, eventAttributeValue AS '{a[0]}' FROM event NATURAL JOIN eventAttributeValue Natural JOiN eventAttribute WHERE eventAttributeName = '{a[0]}'  ")
-        
-        str = ""
-        for l in list:
-            str += f"{l} NATURAL JOIN "
+        if len(allAttribute)==0:
+            c.execute(f"CREATE VIEW event_{e[0].replace("-","")}_OCEL AS SELECT eventID as ocel_id, eventTime as ocel_time FROM event where eventTypeID = '{e[0]}'")
+        else:
+            list = []
+            for a in allAttribute:
+                list.append(f"event_{a[0]}_{e[0].replace("-","")}_view")
+            
+                c.execute(f"CREATE VIEW event_{a[0]}_{e[0].replace("-","")}_view AS SELECT eventID as ocel_id, eventTime as ocel_time, eventAttributeValue AS '{a[0]}' FROM event NATURAL JOIN eventAttributeValue Natural JOiN eventAttribute WHERE eventAttributeName = '{a[0]}'  ")
+            
+            str = ""
+            for l in list:
+                str += f"{l} NATURAL JOIN "
 
-        
-        str = str[:-12]
-        if len(str)>0:
-            c.execute(f"CREATE VIEW event_{e[0].replace("-","")}_view_ocel AS SELECT * FROM {str}")
+            
+            str = str[:-12]
+            if len(str)>0:
+                c.execute(f"CREATE VIEW event_{e[0].replace("-","")}_view_ocel AS SELECT * FROM {str}")
     connect.commit()
 
 def create_view_objectOcelTypes_OCEL(c):
-    c.execute("SELECT objectTypeID FROM objectType")
+    c.execute("SELECT objectTypeID,objectType FROM objectType")
     objectTypes = c.fetchall()
     for e in objectTypes:
         c.execute(f"SELECT objectAttributeName from objectAttribute WHERE objectTypeID = '{e[0]}'")
         allAttribute = c.fetchall()
+        if len(allAttribute)==0:
+            c.execute(f"CREATE table object_{e[1].replace(" ","")}_OCEL AS SELECT objectID as ocel_id, objectTime as ocel_time FROM object NATURAL JOIN objectAttributeValue  where objectTypeID = '{e[0]}'")
         list = []
         for a in allAttribute:
-            list.append(f"object_{a[0]}_{e[0].replace("-","")}_view")
+            list.append(f"object_{a[0]}_{e[1].replace(" ","")}_view")
            
-            c.execute(f"CREATE VIEW object_{a[0]}_{e[0].replace("-","")}_view AS SELECT objectID as ocel_id, objectAttributeValTime as ocel_time, attributeValue AS '{a[0]}' FROM objectAttributeValue Natural JOiN objectAttribute WHERE objectAttributeName = '{a[0]}'  ")
+            c.execute(f"CREATE VIEW object_{a[0]}_{e[1].replace(" ","")}_view AS SELECT objectID as ocel_id, objectAttributeValTime as ocel_time, attributeValue AS '{a[0]}' FROM objectAttributeValue Natural JOiN objectAttribute WHERE objectAttributeName = '{a[0]}'  ")
         
         str = ""
         for l in list:
@@ -84,7 +90,7 @@ def create_view_objectOcelTypes_OCEL(c):
         
         str = str[:-12]
         if len(str)>0:
-            c.execute(f"CREATE VIEW object_{e[0].replace("-","")}_view_ocel AS SELECT * FROM {str}")
+            c.execute(f"CREATE VIEW object_{e[1].replace(" ","")}_view_ocel AS SELECT * FROM {str}")
        
     connect.commit()
 
