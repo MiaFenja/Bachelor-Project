@@ -81,3 +81,7 @@ def main(sql, filepath, input_format, output_format):
 
 input = sys.argv
 main(f"{input[1]}", f"{input[2]}", f"{input[3]}", f"{input[4]}")
+
+
+# python main.py 'SQLite' 'db/OCEL_big_data.db' 'OCEL' 'OCED'
+# python main.py 'SQLite' 'db/OCEL_Simple_Database.db' 'OCEL' 'OCEL'
