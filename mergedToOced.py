@@ -1,10 +1,4 @@
-import sqlite3
-
-connect = sqlite3.connect("newOCED.sqlite")
-c = connect.cursor()
-c.execute(f"ATTACH DATABASE 'merged.sqlite' as 'merged'")
-
-def create_new_event_OCED(c):
+def create_new_event_OCED(c, connect):
     c.execute("""CREATE TABLE IF NOT EXISTS "event" (
                     `eventID` TEXT,
                     `eventType` TEXT,
@@ -16,7 +10,7 @@ def create_new_event_OCED(c):
                  NATURAL JOIN merged.eventType""")
     connect.commit()
 
-def create_new_eventAttributeValue_OCED(c):
+def create_new_eventAttributeValue_OCED(c, connect):
     c.execute("""CREATE TABLE IF NOT EXISTS "eventAttributeValue" (
                     `eventID` TEXT,
                     `eventAttributeName` TEXT,
@@ -27,7 +21,7 @@ def create_new_eventAttributeValue_OCED(c):
     c.execute(f"""INSERT INTO eventAttributeValue SELECT eventID, eventAttributeName, eventAttributeValue FROM merged.eventAttributeValue NATURAL JOIN merged.eventAttribute """)
     connect.commit()
 
-def create_new_eventObject_OCED(c):
+def create_new_eventObject_OCED(c, connect):
     c.execute("""CREATE TABLE IF NOT EXISTS "eventObject" (
                     `eventID` TEXT,
                     `objectID` TEXT,
@@ -38,7 +32,7 @@ def create_new_eventObject_OCED(c):
     c.execute("""INSERT INTO eventObject SELECT * FROM merged.eventObject""")
     connect.commit()
 
-def create_new_object_OCED(c):
+def create_new_object_OCED(c, connect):
     c.execute("""CREATE TABLE IF NOT EXISTS "object" (
                     `objectID` TEXT,
                     `objectType` TEXT,
@@ -48,7 +42,7 @@ def create_new_object_OCED(c):
     c.execute("""INSERT INTO object SELECT merged.object.objectID, merged.objectType.objectType FROM merged.object NATURAL JOIN merged.objectType""")
     connect.commit()
 
-def create_new_objectObject_OCED(c):
+def create_new_objectObject_OCED(c, connect):
     c.execute("""CREATE TABLE IF NOT EXISTS "objectObject" (
                     `objectObjectID` TEXT,
                     `fromObjectID` TEXT,
@@ -60,7 +54,7 @@ def create_new_objectObject_OCED(c):
     c.execute("""INSERT INTO objectObject SELECT * FROM merged.objectObject""")
     connect.commit()
 
-def create_new_objectRelationEvent_OCED(c):
+def create_new_objectRelationEvent_OCED(c, connect):
     c.execute("""CREATE TABLE IF NOT EXISTS "objectRelationEvent" (
                     `objectObjectID` TEXT,
                     `eventID` TEXT,
@@ -72,7 +66,7 @@ def create_new_objectRelationEvent_OCED(c):
                  merged.objectRelationEvent.OOEqualifier FROM merged.objectRelationEvent""")
     connect.commit()
 
-def create_new_objectAttributeValue_OCED(c):
+def create_new_objectAttributeValue_OCED(c, connect):
     c.execute("""CREATE TABLE IF NOT EXISTS "objectAttributeValue" (
                     `objectAttributeValueID` TEXT,
                     `objectID` TEXT,
@@ -85,7 +79,7 @@ def create_new_objectAttributeValue_OCED(c):
                   objectAttributeName, attributeValue FROM merged.objectAttributeValue NATURAL JOIN merged.objectAttribute """)
     connect.commit()
 
-def create_new_objectAttributeValueEvent_OCED(c):
+def create_new_objectAttributeValueEvent_OCED(c, connect):
     c.execute("""CREATE TABLE IF NOT EXISTS "objectAttributeValueEvent" (
                     `eventID` TEXT,
                     `objectAttributeValueID` TEXT,
@@ -96,11 +90,4 @@ def create_new_objectAttributeValueEvent_OCED(c):
     c.execute("""INSERT INTO objectAttributeValueEvent SELECT eventID, valueID AS objectAttributeValueID, OAEqualifier FROM merged.objectAttributeValueEvent""")
     connect.commit()
 
-create_new_event_OCED(c) 
-create_new_eventAttributeValue_OCED(c)
-create_new_eventObject_OCED(c)
-create_new_object_OCED(c)
-create_new_objectObject_OCED(c)
-create_new_objectRelationEvent_OCED(c)
-create_new_objectAttributeValue_OCED(c)
-create_new_objectAttributeValueEvent_OCED(c)
+

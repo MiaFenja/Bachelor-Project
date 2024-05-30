@@ -45,12 +45,7 @@ def create_objectObject_Ocel(c,connect):
                     PRIMARY KEY (`objectObjectID`))""")
     
     c.execute(f"""INSERT INTO objectObject(fromObjectID,toObjectID,objectRelationType) 
-                  SELECT ocelbase.object_object.ocel_source_id AS fromObjectID, 
-                  ocelbase.object_object.ocel_target_id AS toObjectID, 
-                  ocelbase.object_object.ocel_qualifier AS objectRelationType 
-                  FROM ocelbase.object_object LEFT JOIN ocelbase.event_object 
-                  ON ocelbase.event_object.ocel_object_id = ocelbase.object_object.ocel_target_id 
-                  OR ocelbase.event_object.ocel_object_id = ocelbase.object_object.ocel_source_id""")
+                  SELECT * FROM ocelbase.object_object""")
     c.execute(f"SELECT rowid from objectObject")
     rowids = c.fetchall()
     for i in rowids:

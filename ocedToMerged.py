@@ -1,9 +1,3 @@
-import sqlite3
-
-connect = sqlite3.connect("merged.sqlite")
-c = connect.cursor()
-c.execute("ATTACH DATABASE 'db/OCED_Simple_Database.db' as 'ocedbase'")
-
 def create_eventType_OCED(c,connect):
     c.execute("""CREATE TABLE "eventType" (
                 `eventTypeID` TEXT PRIMARY KEY,
@@ -113,8 +107,8 @@ def create_objectAttributeValue_OCED(c,connect):
                     `objectAttributeID` TEXT,
                     `attributeValue` TEXT,
                     PRIMARY KEY (`valueID`))""")
-    c.execute("""INSERT INTO objectAttributeValue (valueID, objectID, objectAttributeID, attributeValue) 
-                 SELECT objectAttributeValueID AS valueID, objectID, objectAttributeID, objectAttributeValue AS attributeValue 
+    c.execute("""INSERT INTO objectAttributeValue
+                 SELECT objectAttributeValueID AS valueID, objectID, "" AS objectAttributeValTime, objectAttributeID, objectAttributeValue AS attributeValue 
                  FROM ocedbase.objectAttributeValue NATURAL JOIN objectAttribute""")
     connect.commit()
 

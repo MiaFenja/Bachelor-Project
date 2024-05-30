@@ -45,33 +45,33 @@ CREATE TABLE IF NOT EXISTS "event_object" (
 CREATE TABLE IF NOT EXISTS "event_ReceiveOrder" (
 	`ocel_id` TEXT,
     `ocel_time` TIMESTAMP,
-    PRIMARY KEY (`ocel_id`)
+    FOREIGN KEY (`ocel_id`) REFERENCES `event`(`ocel_id`)
 );
 
 CREATE TABLE IF NOT EXISTS "event_PackOrder" (
 	`ocel_id` TEXT,
     `ocel_time` TIMESTAMP,
-    PRIMARY KEY (`ocel_id`)
+    FOREIGN KEY (`ocel_id`) REFERENCES `event`(`ocel_id`)
 );
 
 CREATE TABLE IF NOT EXISTS "event_SendOrder" (
 	`ocel_id` TEXT,
     `ocel_time` TIMESTAMP,
     `completed` BOOLEAN,
-    PRIMARY KEY (`ocel_id`)
+    FOREIGN KEY (`ocel_id`) REFERENCES `event`(`ocel_id`)
 );
 
 CREATE TABLE IF NOT EXISTS "event_ReturnOrder" (
 	`ocel_id` TEXT,
     `ocel_time` TIMESTAMP,
-    PRIMARY KEY (`ocel_id`)
+    FOREIGN KEY (`ocel_id`) REFERENCES `object`(`ocel_id`)
 );
 
 CREATE TABLE IF NOT EXISTS "object_OrderForm" (
 	`ocel_id` TEXT,
     `ocel_time` TIMESTAMP,
     `number_of_items` INT,
-    PRIMARY KEY (`ocel_id`)
+    FOREIGN KEY (`ocel_id`) REFERENCES `object`(`ocel_id`)
 );
 
 CREATE TABLE IF NOT EXISTS "object_Book" (
@@ -79,14 +79,14 @@ CREATE TABLE IF NOT EXISTS "object_Book" (
     `ocel_time` TIMESTAMP,
     `weight` INT,
     `price` INT,
-    PRIMARY KEY (`ocel_id`)
+    FOREIGN KEY (`ocel_id`) REFERENCES `object`(`ocel_id`)
 );
 
 CREATE TABLE IF NOT EXISTS "object_Package" (
 	`ocel_id` TEXT,
     `ocel_time` TIMESTAMP,
     `delivered` BOOLEAN,
-    PRIMARY KEY (`ocel_id`)
+    FOREIGN KEY (`ocel_id`) REFERENCES `object`(`ocel_id`)
 );
 
 # Insertion 
