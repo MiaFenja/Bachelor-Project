@@ -66,100 +66,84 @@ def create_new_eventObject_OCEL(c, connect):
                  FROM merged.eventObject""")
 
 def create_new_eventOcelTypes_OCEL(c, connect):
-    c.execute("SELECT eventTypeID, eventType FROM merged.eventType")
-    eventTypes = c.fetchall()
-    for e in eventTypes:
-        c.execute(f"SELECT eventAttributeName from merged.eventAttribute WHERE eventTypeID = '{e[0]}'")
-        allAttribute = c.fetchall()
-        if len(allAttribute)==0:
-            c.execute(f"""CREATE TABLE "event_{e[1].replace(" ","")}" (
-                        'ocel_id' TEXT,
-                        'ocel_time' TIMESTAMP,
-                        FOREIGN KEY ('ocel_id') REFERENCES 'event'('ocel_id'))""")
-            c.execute(f"""INSERT INTO event_{e[1].replace(" ","")} SELECT eventID as ocel_id, eventTime as ocel_time FROM merged.event where eventTypeID = '{e[0]}'""")
-            
-        else:
-            list = []
-            stra = ""
-            for a in allAttribute:
-                stra = stra + f"""'{a[0]}'"""+" TEXT, "
-                list.append(f"""event_{a[0]}_{e[1].replace(" ","")}_temp""")
-
-            
-                c.execute(f"""CREATE TABLE event_{a[0]}_{e[1].replace(" ","")}_temp AS SELECT eventID as ocel_id, eventTime as ocel_time, eventAttributeValue AS '{a[0]}' 
-                              FROM merged.event NATURAL JOIN merged.eventAttributeValue Natural JOiN merged.eventAttribute WHERE eventAttributeName = '{a[0]}'  """)
-            
-            str = ""
-            for l in list:
-                str += f"{l} NATURAL JOIN "
-
-            
-            str = str[:-13]
-            if len(list)>1:
-
-                c.execute(f"""CREATE TABLE "event_{e[1].replace(" ","")}" (
-                        'ocel_id' TEXT,
-                        'ocel_time' TIMESTAMP,
-                        {stra} FOREIGN KEY ('ocel_id') REFERENCES 'event'('ocel_id'))""")
-                c.execute(f"""INSERT INTO event_{e[1].replace(" ","")} SELECT * FROM {str}""")
-                for a in allAttribute:
-                    c.execute(f"""DROP TABLE event_{a[0]}_{e[1].replace(" ","")}_temp""")
-            else:
-            
-                c.execute(f"""CREATE TABLE "event_{e[1].replace(" ","")}" (
-                        ocel_id text,
-                        ocel_time TIMESTAMP,
-                        {stra} FOREIGN KEY (ocel_id) REFERENCES 'event'('ocel_id'))""")
-                c.execute(f"""INSERT INTO event_{e[1].replace(" ","")} SELECT * FROM event_{allAttribute[0][0]}_{e[1].replace(" ","")}_temp""")
-                c.execute(f"""DROP TABLE event_{allAttribute[0][0]}_{e[1].replace(" ","")}_temp""")
-    connect.commit()
+   #What is needed: type, for name
+   #attribute name
+   #attribute values
+   #time 
+   #locations
+   #eventType
+   #attribute
+   #attributevalues 
+   #event
+   #in common: eventType and eventAttribute and event= eventTypeID
+   #eventAttributeValuye and event: eventID
+   #eventAttribute and eventAttributeValue : eventAttributeID
+   #Get the tablenames:
+   c.execute("""SELECT eventType, eventTypeID FROM merged.eventType""")
+   tablenames = c.fetchall()
+   # For each type there are several possibilities: No attributes, one attribute and multiple attributes
+   #go through create table:
+   for n in tablenames:
+       tablename = f"event_{n[0].replace( " ","")}"
+       c.execute(f"SELECT eventAttributeName, eventAttributeID FROM merged.eventAttribute where eventTypeID ='{n[1]}'")
+       str = ""
+       at = c.fetchall()
+       for e in at:
+           str += f"'{e[0]}' TEXT, "
+       c.execute(f"""CREATE TABLE "{tablename}"(
+                 'ocel_id' TEXT,
+                 'ocel_time' DATETIME,
+                 {str} FOREIGN KEY ('ocel_id') REFERENCES 'event'('ocel_id')
+                  )""")
+       str = ""
+       for e in at:
+           print(e)
+           c.execute(f"""CREATE table {e[0].replace(" ", "")}{n[0].replace(" ","")}table AS SELECT eventID, eventTime, eventAttributeValue as {e[0]} FROM merged.event NATURAL JOIN merged.eventAttribute NATURAL JOIN merged.eventAttributeValue WHERE eventAttributeID = '{e[1]}' AND eventTypeID = '{n[1]}'""")
+           str = str + f"{e[0].replace(" ","")}{n[0].replace(" ","")}table natural JOIN "
+       str = str[:-13]
+       c.execute(f"""INSERT INTO {tablename} SELECT * FROM {str}""")
+       for e in at:
+           c.execute(f"""DROP TABLE {e[0].replace(" ", "")}{n[0].replace(" ","")}table""")
+       connect.commit()
 
 def create_new_objectOcelTypes_OCEL(c, connect):
-    c.execute("SELECT objectTypeID, objectType FROM merged.objectType")
-    objectTypes = c.fetchall()
-    for e in objectTypes:
-        c.execute(f"SELECT objectAttributeName from merged.objectAttribute WHERE objectTypeID = '{e[0]}'")
-        allAttribute = c.fetchall()
-        if len(allAttribute)==0:
-            c.execute(f"""CREATE TABLE "object_{e[1].replace(" ","")}" (
-                        'ocel_id' TEXT,
-                        'ocel_time' TIMESTAMP,
-                        FOREIGN KEY ('ocel_id') REFERENCES 'object'('ocel_id'))""")
-            c.execute(f"""INSERT into object_{e[1].replace(" ","")} SELECT objectID as ocel_id,  objectAttributeValTime as ocel_time FROM merged.object NATURAL JOIN merged.objectAttributeValue where objectTypeID = '{e[0]}'""")
-        
-        else:
-            list = []
-            stra = ""
-            for a in allAttribute:
-                stra = stra + f"""`{a[0]}`"""+" TEXT, "
-                
-                tablename = f"""object_{a[0]}_{e[1].replace(" ","")}_temp"""
-                list.append(tablename)
-                c.execute(f"""CREATE TABLE {tablename} AS SELECT objectID as ocel_id, objectAttributeValTime as ocel_time, 
-                              attributeValue AS {a[0]} FROM merged.objectAttributeValue NATURAL JOIN merged.objectAttribute WHERE objectAttributeName = '{a[0]}'""")
-            
-            str = ""
-            for l in list:
-                str += f"{l} NATURAL JOIN "
-            
-            str = str[:-13]
-            if len(list)>1:
-                c.execute(f"""CREATE TABLE "object_{e[1].replace(" ","")}" (
-                        'ocel_id' TEXT,
-                        'ocel_time' TIMESTAMP,
-                        {stra}
-                        FOREIGN KEY ('ocel_id') REFERENCES 'object'('ocel_id'))""")
-                c.execute(f"""INSERT INTO object_{e[1].replace(" ","")} SELECT * FROM {str}""")
-                for a in allAttribute:
-                    c.execute(f"""DROP TABLE object_{a[0]}_{e[1].replace(" ","")}_temp""")
-            else:
-                c.execute(f"""CREATE TABLE "object_{e[1].replace(" ","")}" (
-                        'ocel_id' TEXT,
-                        'ocel_time' TIMESTAMP,
-                        '{allAttribute[0][0]}',
-                        FOREIGN KEY ('ocel_id') REFERENCES 'object'('ocel_id'))""")
-                c.execute(f"""INSERT INTO object_{e[1].replace(" ","")} SELECT * FROM object_{allAttribute[0][0]}_{e[1].replace(" ","")}_temp""")
-                c.execute(f"""DROP TABLE object_{allAttribute[0][0]}_{e[1].replace(" ","")}_temp""")
-    connect.commit()
-
+   #What is needed: type, for name
+   #attribute name
+   #attribute values
+   #time 
+   #locations
+   #eventType
+   #attribute
+   #attributevalues 
+   #event
+   #in common: eventType and eventAttribute and event= eventTypeID
+   #eventAttributeValuye and event: eventID
+   #eventAttribute and eventAttributeValue : eventAttributeID
+   #Get the tablenames:
+   c.execute("""SELECT objectType, objectTypeID FROM merged.objectType""")
+   tablenames = c.fetchall()
+   # For each type there are several possibilities: No attributes, one attribute and multiple attributes
+   #go through create table:
+   for n in tablenames:
+       tablename = f"object_{n[0].replace( " ","")}"
+       c.execute(f"SELECT objectAttributeName, objectAttributeID FROM merged.objectAttribute where objectTypeID ='{n[1]}'")
+       str = ""
+       at = c.fetchall()
+       for e in at:
+           str += f"'{e[0]}' TEXT, "
+       c.execute(f"""CREATE TABLE "{tablename}"(
+                 'ocel_id' TEXT,
+                 'ocel_time' DATETIME,
+                 {str} FOREIGN KEY ('ocel_id') REFERENCES 'object'('ocel_id')
+                  )""")
+       str = ""
+       for e in at:
+           print(e)
+           c.execute(f"""CREATE table {e[0].replace(" ", "")}{n[0].replace(" ","")}table AS SELECT objectID, objectAttributeValTime, AttributeValue as {e[0]} FROM merged.objectAttribute NATURAL JOIN merged.objectAttributeValue WHERE objectAttributeID = '{e[1]}' AND objectTypeID = '{n[1]}'""")
+           str = str + f"{e[0].replace(" ","")}{n[0].replace(" ","")}table natural JOIN "
+       str = str[:-13]
+       c.execute(f"""INSERT INTO {tablename} SELECT DISTINCT * FROM {str}""")
+       for e in at:
+           c.execute(f"""DROP TABLE {e[0].replace(" ", "")}{n[0].replace(" ","")}table""")
+       connect.commit()
 
