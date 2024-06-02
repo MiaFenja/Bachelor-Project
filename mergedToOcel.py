@@ -66,23 +66,8 @@ def create_new_eventObject_OCEL(c, connect):
                  FROM merged.eventObject""")
 
 def create_new_eventOcelTypes_OCEL(c, connect):
-   #What is needed: type, for name
-   #attribute name
-   #attribute values
-   #time 
-   #locations
-   #eventType
-   #attribute
-   #attributevalues 
-   #event
-   #in common: eventType and eventAttribute and event= eventTypeID
-   #eventAttributeValuye and event: eventID
-   #eventAttribute and eventAttributeValue : eventAttributeID
-   #Get the tablenames:
    c.execute("""SELECT eventType, eventTypeID FROM merged.eventType""")
    tablenames = c.fetchall()
-   # For each type there are several possibilities: No attributes, one attribute and multiple attributes
-   #go through create table:
    for n in tablenames:
        tablename = f"event_{n[0].replace(' ','')}"
        c.execute(f"SELECT eventAttributeName, eventAttributeID FROM merged.eventAttribute where eventTypeID ='{n[1]}'")
@@ -98,7 +83,7 @@ def create_new_eventOcelTypes_OCEL(c, connect):
        str = ""
        for e in at:
            c.execute(f"""CREATE table {e[0].replace(" ", "")}{n[0].replace(" ","")}table AS SELECT eventID, eventTime, eventAttributeValue as {e[0]} FROM merged.event NATURAL JOIN merged.eventAttribute NATURAL JOIN merged.eventAttributeValue WHERE eventAttributeID = '{e[1]}' AND eventTypeID = '{n[1]}'""")
-           str = str + f"{e[0].replace(" ","")}{n[0].replace(" ","")}table natural JOIN "
+           str = str + f"{e[0].replace(' ','')}{n[0].replace(' ','')}table natural JOIN "
        str = str[:-13]
        if len(at)>0:
         c.execute(f"""INSERT INTO {tablename} SELECT DISTINCT * FROM {str}""")
@@ -128,7 +113,7 @@ def create_new_objectOcelTypes_OCEL(c, connect):
    # For each type there are several possibilities: No attributes, one attribute and multiple attributes
    #go through create table:
    for n in tablenames:
-       tablename = f"object_{n[0].replace( ' ','')}"
+       tablename = f"object_{n[0].replace(' ','')}"
        c.execute(f"SELECT objectAttributeName, objectAttributeID FROM merged.objectAttribute where objectTypeID ='{n[1]}'")
        str = ""
        at = c.fetchall()
@@ -142,13 +127,13 @@ def create_new_objectOcelTypes_OCEL(c, connect):
        str = ""
        for e in at:
            c.execute(f"""CREATE table {e[0].replace(" ", "")}{n[0].replace(" ","")}table AS SELECT objectID, objectAttributeValTime, AttributeValue as {e[0]} FROM merged.objectAttribute NATURAL JOIN merged.objectAttributeValue WHERE objectAttributeID = '{e[1]}' AND objectTypeID = '{n[1]}'""")
-           str = str + f"{e[0].replace(" ","")}{n[0].replace(" ","")}table natural JOIN "
+           str = str + f"{e[0].replace(' ','')}{n[0].replace(' ','')}table natural JOIN "
        str = str[:-13]
        if len(at)>0:
         c.execute(f"""INSERT INTO {tablename} SELECT DISTINCT * FROM {str}""")
        else:
             c.execute(f"""INSERT INTO {tablename} SELECT DISTINCT objectID, objectAttributeValTime FROM merged.object NATURAL JOIN merged.objectAttributeValue where objectTypeID = '{n[1]}'""")
        for e in at:
-           c.execute(f"""DROP TABLE {e[0].replace(" ", "")}{n[0].replace(" ","")}table""")
+           c.execute(f"""DROP TABLE {e[0].replace(' ', '')}{n[0].replace(' ','')}table""")
        connect.commit()
 
