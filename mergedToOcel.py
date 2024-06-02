@@ -136,7 +136,7 @@ def create_new_objectOcelTypes_OCEL(c, connect):
                 tablename = f"""object_{a[0]}_{e[1].replace(" ","")}_temp"""
                 list.append(tablename)
                 c.execute(f"""CREATE TABLE {tablename} AS SELECT objectID as ocel_id, objectAttributeValTime as ocel_time, 
-                              attributeValue AS {a[0]} FROM merged.objectAttributeValue Natural JOIN merged.objectAttribute WHERE objectAttributeName = '{a[0]}'""")
+                              attributeValue AS {a[0]} FROM merged.objectAttributeValue NATURAL JOIN merged.objectAttribute WHERE objectAttributeName = '{a[0]}'""")
             
             str = ""
             for l in list:
