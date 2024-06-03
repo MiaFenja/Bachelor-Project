@@ -1,18 +1,4 @@
-import mysql.connector
-connect = mysql.connector.connect(
-  host="localhost",
-  user="root",
-  password="1234"
-)
-ocedbase = "OCED"
-
-c = connect.cursor()
-c.execute("DROP DATABASE IF EXISTS testing1")
-c.execute("CREATE DATABASE testing1")
-c.execute("USE testing1")
-
-
-def create_eventType_OCED(c,connect):
+def create_eventType_OCED(c,connect,ocedbase):
     c.execute("""CREATE TABLE eventType (
                 eventTypeID VARCHAR(50) PRIMARY KEY,
                 eventType TEXT
@@ -25,8 +11,8 @@ def create_eventType_OCED(c,connect):
               values((CONCAT('ET-',(@id := @id +1))), '{et[0]}')
               """)
 
-
-def create_event_OCED(c,connect):
+    connect.commit()
+def create_event_OCED(c,connect,ocedbase):
     c.execute("""CREATE TABLE event (
                     eventID VARCHAR(50) PRIMARY KEY, 
                     eventTypeID VARCHAR(50), 
@@ -38,8 +24,8 @@ def create_event_OCED(c,connect):
                INSERT INTO testing1.event values(new.eventID, (SELECT DISTINCT eventTypeID FROM event NATURAL JOIN testing1.eventType WHERE new.eventType = eventType), new.timestamp)""")
     c.execute("USE testing1")
     connect.commit()
-
-def create_objectObject_OCED(c,connect):
+    
+def create_objectObject_OCED(c,connect,ocedbase):
     c.execute("""CREATE TABLE objectObject (
                     objectObjectID VARCHAR(50),
                     fromObjectID VARCHAR(50), 
@@ -53,7 +39,7 @@ def create_objectObject_OCED(c,connect):
     c.execute(f"USE testing1")
     connect.commit()
 
-def create_eventObject_OCED(c,connect):
+def create_eventObject_OCED(c,connect,ocedbase):
     c.execute("""CREATE TABLE eventObject (
                     eventID VARCHAR(50), 
                     objectID VARCHAR(50),
@@ -66,7 +52,7 @@ def create_eventObject_OCED(c,connect):
     c.execute(f"USE testing1")
     connect.commit()
     
-def create_objectType_OCED(c,connect):
+def create_objectType_OCED(c,connect,ocedbase):
     c.execute("""CREATE TABLE objectType (
                     objectTypeID VARCHAR(50),
                     objectType VARCHAR(50),
@@ -80,8 +66,8 @@ def create_objectType_OCED(c,connect):
               values((CONCAT('OT-',(@id := @id +1))), '{ot[0]}')
               """)
 
-
-def create_object_OCED(c,connect):
+    connect.commit()
+def create_object_OCED(c,connect,ocedbase):
     c.execute("""CREATE TABLE object (
                     objectID VARCHAR(50),
                     objectTypeID VARCHAR(50),
@@ -93,7 +79,7 @@ def create_object_OCED(c,connect):
     c.execute(f"USE testing1")
     connect.commit()
 
-def create_objectRelationEvent_OCED(c,connect):
+def create_objectRelationEvent_OCED(c,connect,ocedbase):
     c.execute("""CREATE TABLE objectRelationEvent (
                     objectRelationEventID VARCHAR(50),
                     objectObjectID VARCHAR(50),
@@ -108,7 +94,7 @@ def create_objectRelationEvent_OCED(c,connect):
     c.execute(f"USE testing1")
     connect.commit()
 
-def create_objectAttribute_OCED(c,connect):
+def create_objectAttribute_OCED(c,connect,ocedbase):
     c.execute("""CREATE TABLE objectAttribute (
                     objectAttributeID VARCHAR(50),
                     objectTypeID VARCHAR(50),
@@ -121,18 +107,18 @@ def create_objectAttribute_OCED(c,connect):
         print(oa[0])
         c.execute(f"""INSERT INTO objectAttribute
                   values(CONCAT('OA-',(@id := @id + 1)),'{oa[0]}', '{oa[1]}')""")
-    c.execute(f"""USE {ocedbase}""")
-    c.execute(f"""CREATE TRIGGER objectatTrigger AFTER INSERT ON objectAttributeValue FOR EACH ROW 
-              INSERT testing1.objectAttribute
-      SELECT DISTINCT (SELECT CONCAT('OA-',(Convert(SUBSTRING(max(testing1.objectAttribute.objectAttributeID),4),INTEGER)+1)) FROM testing1.objectAttribute)
-, objectTypeID, new.objectAttributeName
-               FROM testing1.objectType NATURAL JOIN testing1.object NATURAL JOIN objectAttributeValue
-               WHERE new.objectAttributeName = objectAttributeName and (objectTypeID NOT IN (SELECT objectTypeID FROM testing1.objectAttribute) OR new.objectAttributeName NOT IN (SELECT objectAttributeName FROM testing1.objectAttribute))"""  )
-    c.execute(f"""USE testing1""")
+    #c.execute(f"""USE {ocedbase}""")
+    #c.execute(f"""CREATE TRIGGER objectatTrigger AFTER INSERT ON objectAttributeValue FOR EACH ROW 
+     #         INSERT testing1.objectAttribute
+    #  SELECT DISTINCT (SELECT CONCAT('OA-',(Convert(SUBSTRING(max(testing1.objectAttribute.objectAttributeID),4),INTEGER)+1)) FROM testing1.objectAttribute)
+#, objectTypeID, new.objectAttributeName
+      #         FROM testing1.objectType NATURAL JOIN testing1.object NATURAL JOIN objectAttributeValue
+       #        WHERE new.objectAttributeName = objectAttributeName and (objectTypeID NOT IN (SELECT objectTypeID FROM testing1.objectAttribute) OR new.objectAttributeName NOT IN (SELECT objectAttributeName FROM testing1.objectAttribute))"""  )
+    #c.execute(f"""USE testing1""")
     connect.commit()
             
 
-def create_objectAttributeValue_OCED(c,connect):
+def create_objectAttributeValue_OCED(c,connect,ocedbase):
     c.execute("""CREATE TABLE objectAttributeValue (
                     valueID VARCHAR(50),
                     objectID VARCHAR(50),
@@ -149,7 +135,7 @@ def create_objectAttributeValue_OCED(c,connect):
     c.execute(f"""USE testing1""")
     connect.commit()
 
-def create_objectAttributeValueEvent_OCED(c,connect):
+def create_objectAttributeValueEvent_OCED(c,connect,ocedbase):
     c.execute("""CREATE TABLE objectAttributeValueEvent (
               valueID VARCHAR(50),
               eventID VARCHAR(50),
@@ -165,7 +151,7 @@ def create_objectAttributeValueEvent_OCED(c,connect):
     connect.commit()
  
             
-def create_eventAttribute_OCED(c,connect):
+def create_eventAttribute_OCED(c,connect,ocedbase):
     c.execute("""CREATE TABLE eventAttribute (
                     eventAttributeID VARCHAR(50),
                     eventTypeID VARCHAR(50),
@@ -177,18 +163,18 @@ def create_eventAttribute_OCED(c,connect):
     for ea in eventat:
         c.execute(f"""INSERT INTO eventAttribute
                   values(CONCAT('EA-',(@id := @id + 1)),'{ea[0]}', '{ea[1]}')""")
-    c.execute(f"""USE {ocedbase}""")
-    c.execute(f"""CREATE TRIGGER eventatTrigger AFTER INSERT ON eventAttributeValue FOR EACH ROW 
-              INSERT testing1.eventAttribute
-      SELECT DISTINCT (SELECT CONCAT('EA-',(Convert(SUBSTRING(max(testing1.eventAttribute.eventAttributeID),4),INTEGER)+1)) FROM testing1.eventAttribute)
-, eventTypeID, new.eventAttributeName
-               FROM testing1.eventType NATURAL JOIN testing1.event NATURAL JOIN eventAttributeValue
-               WHERE new.eventAttributeName = eventAttributeName and (eventTypeID NOT IN (SELECT eventTypeID FROM testing1.eventAttribute) OR new.eventAttributeName NOT IN (SELECT eventAttributeName FROM testing1.eventAttribute))"""  )
-    c.execute(f"""USE testing1""")
+    #c.execute(f"""USE {ocedbase}""")
+    #c.execute(f"""CREATE TRIGGER eventatTrigger AFTER INSERT ON eventAttributeValue FOR EACH ROW 
+     #         INSERT testing1.eventAttribute
+     # SELECT DISTINCT (SELECT CONCAT('EA-',(Convert(SUBSTRING(max(testing1.eventAttribute.eventAttributeID),4),INTEGER)+1)) FROM testing1.eventAttribute)
+#, eventTypeID, new.eventAttributeName
+   #            FROM testing1.eventType NATURAL JOIN testing1.event NATURAL JOIN eventAttributeValue
+     #          WHERE new.eventAttributeName = eventAttributeName and (eventTypeID NOT IN (SELECT eventTypeID FROM testing1.eventAttribute) OR new.eventAttributeName NOT IN (SELECT eventAttributeName FROM testing1.eventAttribute))"""  )
+   # c.execute(f"""USE testing1""")
     connect.commit()
 
 
-def create_eventAttributeValue_OCED(c,connect):
+def create_eventAttributeValue_OCED(c,connect,ocedbase):
     c.execute("""CREATE TABLE eventAttributeValue (
                     eventID VARCHAR(50),
                     eventAttributeID VARCHAR(50),
@@ -202,17 +188,3 @@ def create_eventAttributeValue_OCED(c,connect):
               INSERT testing1.eventAttributeValue(eventID,eventAttributeID, eventAttributeValue) values(new.eventID, (SELECT eventAttributeID from testing1.eventAttribute NATURAL JOIN testing1.event NATURAL JOIN  testing1.eventType where new.eventAttributeName = eventAttributeName AND eventID = new.eventID), new.eventAttributeValue)""")
     c.execute(f"USE testing1")
     connect.commit()
-
- 
-create_eventType_OCED(c,connect)
-create_event_OCED(c,connect)
-create_eventObject_OCED(c,connect)
-create_objectObject_OCED(c,connect)
-create_objectType_OCED(c,connect)
-create_object_OCED(c,connect)
-create_objectRelationEvent_OCED(c,connect)
-create_objectAttribute_OCED(c,connect)
-create_objectAttributeValue_OCED(c,connect)
-create_objectAttributeValueEvent_OCED(c,connect)
-create_eventAttribute_OCED(c,connect)
-create_eventAttributeValue_OCED(c,connect)

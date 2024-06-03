@@ -1,110 +1,69 @@
-import mysql.connector
-connect = mysql.connector.connect(
-  host="localhost",
-  user="root",
-  password="1234"
-)
-c = connect.cursor()
-c.execute("USE testing1")
-c.execute("DROP VIEW IF EXISTS event_map_type_ocel")
-c.execute("DROP VIEW IF EXISTS event_object_ocel")
-c.execute("DROP VIEW IF EXISTS event_ocel")
-c.execute("DROP VIEW IF EXISTS object_map_type_ocel")
-c.execute("DROP VIEW IF EXISTS object_object_ocel")
-c.execute("DROP VIEW IF EXISTS object_ocel")
-
-
-def create_view_event_OCEL(c):
+def create_view_event_OCEL(c,connect):
     c.execute("""CREATE VIEW event_OCEL AS SELECT event.eventID AS ocel_id, eventType.eventType AS ocel_type 
                  FROM event NATURAL JOIN eventType WHERE event.eventTypeID = eventType.eventTypeID""")
     connect.commit()
 
 
-def create_view_eventMapType_OCEL(c):
+def create_view_eventMapType_OCEL(c,connect):
     
     c.execute("CREATE VIEW event_map_type_OCEL AS SELECT eventType AS ocel_type, REPLACE(eventType, \" \", \"\") AS event_type_map FROM eventType")
     
 
-def create_view_object_OCEL(c):
+def create_view_object_OCEL(c,connect):
     c.execute("""CREATE VIEW object_OCEL AS SELECT object.objectID AS ocel_id, objectType.objectType AS ocel_type 
                  FROM object NATURAL JOIN objectType WHERE object.objectTypeID = objectType.objectTypeID""")
     connect.commit()
 
-def create_view_object_object_OCEL(c):
+def create_view_object_object_OCEL(c,connect):
     c.execute("""CREATE VIEW object_object_OCEL AS SELECT objectObject.fromObjectID AS ocel_source_id, 
                  objectObject.toObjectID AS ocel_target_id, objectObject.objectRelationType AS ocel_qualifier 
                  FROM objectObject""")
 
-def create_view_objectMapType_OCEL(c):
+def create_view_objectMapType_OCEL(c,connect):
     c.execute("CREATE VIEW object_map_type_OCEL AS SELECT objectType AS ocel_type, REPLACE(objectType,\" \",\"\") AS object_type_map FROM objectType")
 
-def create_view_eventObject_OCEL(c):
+def create_view_eventObject_OCEL(c,connect):
     c.execute("""CREATE VIEW event_object_OCEL AS SELECT eventObject.eventID AS ocel_event_id, 
                  eventObject.objectID AS ocel_object_id, eventObject.OEqualifier AS ocel_qualifier 
                  FROM eventObject""")
 
-def create_view_eventOcelTypes_OCEL(c):
-    c.execute("SELECT eventTypeID FROM eventType")
-    eventTypes = c.fetchall()
+def create_view_eventOcelTypes_OCEL(c,connect):
+    c.execute("SELECT eventType, eventTypeID FROM eventType")
+    tablenames = c.fetchall()
 
-    for e in eventTypes:
-        c.execute(f"SELECT eventAttributeName from eventAttribute WHERE eventTypeID = '{e[0]}'")
-        allAttribute = c.fetchall()
-        if len(allAttribute)==0:
-            c.execute(f"CREATE VIEW event_{e[0].replace("-","")}_OCEL AS SELECT eventID as ocel_id, eventTime as ocel_time FROM event where eventTypeID = '{e[0]}'")
-        else:
-            list = []
-            for a in allAttribute:
-                list.append(f"event_{a[0]}_{e[0].replace("-","")}_view")
-            
-                c.execute(f"CREATE VIEW event_{a[0]}_{e[0].replace("-","")}_view AS SELECT eventID as ocel_id, eventTime as ocel_time, eventAttributeValue AS '{a[0]}' FROM event NATURAL JOIN eventAttributeValue Natural JOiN eventAttribute WHERE eventAttributeName = '{a[0]}'  ")
-            
-            str = ""
-            for l in list:
-                str += f"{l} NATURAL JOIN "
-
-            
-            str = str[:-12]
-            if len(str)>0:
-                c.execute(f"CREATE VIEW event_{e[0].replace("-","")}_view_ocel AS SELECT * FROM {str}")
-    connect.commit()
-
-def create_view_objectOcelTypes_OCEL(c):
-    c.execute("SELECT objectTypeID,objectType FROM objectType")
-    objectTypes = c.fetchall()
-    for e in objectTypes:
-        c.execute(f"SELECT objectAttributeName from objectAttribute WHERE objectTypeID = '{e[0]}'")
-        allAttribute = c.fetchall()
-        if len(allAttribute)==0:
-            c.execute(f"CREATE table object_{e[1].replace(" ","")}_OCEL AS SELECT objectID as ocel_id, objectTime as ocel_time FROM object NATURAL JOIN objectAttributeValue  where objectTypeID = '{e[0]}'")
-        list = []
-        for a in allAttribute:
-            list.append(f"object_{a[0]}_{e[1].replace(" ","")}_view")
-           
-            c.execute(f"CREATE VIEW object_{a[0]}_{e[1].replace(" ","")}_view AS SELECT objectID as ocel_id, objectAttributeValTime as ocel_time, attributeValue AS '{a[0]}' FROM objectAttributeValue Natural JOiN objectAttribute WHERE objectAttributeName = '{a[0]}'  ")
-        
+    for n in tablenames:
+        tablename = f"event_{n[0].replace(' ','')}"
+        c.execute(f"SELECT eventAttributeName, eventAttributeID from eventAttribute WHERE eventTypeID = '{n[1]}'")
         str = ""
-        for l in list:
-            str += f"{l} NATURAL JOIN "
-
-        
-        str = str[:-12]
-        if len(str)>0:
-            c.execute(f"CREATE VIEW object_{e[1].replace(" ","")}_view_ocel AS SELECT * FROM {str}")
-       
+        at = c.fetchall()
+        for e in at:
+            c.execute(f"""CREATE VIEW {e[0].replace(" ","")}{n[0].replace(" ","")}view AS SELECT eventID, eventTime, eventAttributeValue AS {e[0]} FROM event NATURAL JOIN eventAttribute NATURAL JOIN eventAttributeValue WHERE eventAttributeID = '{e[1]}' AND eventTypeID = '{n[1]}'""")
+            str = str + f"{e[0].replace(" ","")}{n[0].replace(" ","")}view NATURAL JOIN "
+        str = str[:-13]
+        if len(at)>0:
+            c.execute(f"""CREATE VIEW {tablename} AS SELECT DISTINCT * FROM {str}""")
+        else:
+            c.execute(f"""CREATE VIEW {tablename} AS SELECT eventID, eventTime FROM event where eventTypeID = '{n[1]}'""")
+           
     connect.commit()
 
+def create_view_objectOcelTypes_OCEL(c,connect):
+    c.execute("SELECT objectType, objectTypeID FROM objectType")
+    tablenames = c.fetchall()
+    for n in tablenames:
+        c.execute(f"SELECT objectAttributeName, objectAttributeID from objectAttribute WHERE objectTypeID = '{n[1]}'")
+        at = c.fetchall()
+        tablename = f"object_{n[0].replace(' ','')}"
+        str = ""
+        for e in at:
+            c.execute(f"""CREATE VIEW {e[0].replace(" ","")}{n[0].replace(" ","")}view AS SELECT objectID, objectAttributeValTime, AttributeValue as {e[0]} FROM objectAttribute Natural JOIN objectAttributeValue WHERE objectAttributeID = '{e[1]}' AND objectTypeID = '{n[1]}'""")
+            str = str + f"{e[0].replace(" ","")}{n[0].replace(" ","")}view natural join "
+        str = str[:-13]
+        if len(at)>0:
+            c.execute(f"""CREATE VIEW {tablename} AS SELECT DISTINCT * FROM {str}""")
+        else:
+            c.execute(f"""CREATE VIEW {tablename} AS SELECT objectID, objectValTime FROM objectAttributeValue""")
+    connect.commit()
 
-create_view_event_OCEL(c)
-create_view_eventMapType_OCEL(c)
-create_view_object_OCEL(c)
-create_view_object_object_OCEL(c)
-create_view_objectMapType_OCEL(c)
-create_view_eventObject_OCEL(c)
-create_view_eventOcelTypes_OCEL(c)
-create_view_objectOcelTypes_OCEL(c)
-
-c.execute("select * from event_OCEL")
-print(c.fetchall())
 
 

@@ -5,11 +5,18 @@ import mergedToOced as m2o
 import mergedToOcel as m1o
 import time
 import sys
+import mysql.connector
+sys.path.append("mysql/")
+import mergedToOCEDmysql as m2om
+import mergedToOCELmysql as m1om
+import ocedToMergedmysql as o2mm
+import ocelToMergedMysql as o1mm
+
 
 def create_merged(c,base,connect,type):
     str = ""
     if type == 'OCEL':
-         str="ocelbase" 
+        str="ocelbase" 
     else:
         str = "ocedbase"
     c.execute(f"ATTACH DATABASE {base} as '{str}'")
@@ -39,6 +46,34 @@ def create_merged(c,base,connect,type):
         o2m.create_objectAttributeValueEvent_OCED(c,connect)
         o2m.create_eventAttribute_OCED(c,connect)
         o2m.create_eventAttributeValue_OCED(c,connect)
+ 
+def create_merged_mysql(c,base,connect,type):
+    if type == 'OCEL':
+        o1mm.create_eventType_Ocel(c,connect,base)
+        o1mm.create_event_Ocel(c,connect,base)
+        o1mm.create_objectObject_Ocel(c,connect,base)
+        o1mm.create_eventObject_Ocel(c,connect,base)
+        o1mm.create_objectType_Ocel(c,connect,base)
+        o1mm.create_object_Ocel(c,connect,base)
+        o1mm.create_objectRelationEvent_Ocel(c,connect,base)
+        o1mm.create_objectAttribute_Ocel(c,connect,base)
+        o1mm.create_objectAttributeValue_Ocel(c,connect,base)
+        o1mm.create_objectAttributeValueEvent_Ocel(c,connect,base)
+        o1mm.create_eventAttribute_Ocel(c,connect,base)
+        o1mm.create_eventAttributeValue_Ocel(c,connect,base)
+    else:
+        o2mm.create_eventType_OCED(c,connect,base)
+        o2mm.create_event_OCED(c,connect,base)
+        o2mm.create_objectObject_OCED(c,connect,base)
+        o2mm.create_eventObject_OCED(c,connect,base)
+        o2mm.create_objectType_OCED(c,connect,base)
+        o2mm.create_object_OCED(c,connect,base)
+        o2mm.create_objectRelationEvent_OCED(c,connect,base)
+        o2mm.create_objectAttribute_OCED(c,connect,base)
+        o2mm.create_objectAttributeValue_OCED(c,connect,base)
+        o2mm.create_objectAttributeValueEvent_OCED(c,connect,base)
+        o2mm.create_eventAttribute_OCED(c,connect,base)
+        o2mm.create_eventAttributeValue_OCED(c,connect,base)   
 
 def create_output(c, merged, connect, type):
     c.execute(f"ATTACH DATABASE 'merged.sqlite' as 'merged'")
@@ -62,6 +97,28 @@ def create_output(c, merged, connect, type):
         m1o.create_new_eventOcelTypes_OCEL(c, connect)
         m1o.create_new_objectOcelTypes_OCEL(c, connect)
 
+         
+def create_output_mysql(c,merged,connect,type):
+    if type == 'OCED':
+        m2om.create_view_event_OCED(c, connect) 
+        m2om.create_view_eventAttributeValue_OCED(c, connect)
+        m2om.create_view_eventObject_OCED(c, connect)
+        m2om.create_view_object_OCED(c, connect)
+        m2om.create_view_objectObject_OCED(c, connect)
+        m2om.create_view_objectRelationEvent_OCED(c, connect)
+        m2om.create_view_objectAttributeValue_OCED(c, connect)
+        m2om.create_new_objectAttributeValueEvent_OCED(c, connect)
+    else:
+        m1om.create_view_eventMapType_OCEL(c, connect)
+        m1om.create_view_objectMapType_OCEL(c, connect)
+        m1om.create_view_event_OCEL(c, connect)
+        m1om.create_view_object_OCEL(c, connect)
+        m1om.create_view_object_object_OCEL(c, connect)
+        m1om.create_view_eventObject_OCEL(c, connect)
+        m1om.create_view_eventOcelTypes_OCEL(c, connect)
+        m1om.create_view_objectOcelTypes_OCEL(c, connect)
+
+
 def main(sql, filepath, input_format, output_format):
     if sql == 'SQLite':
         connect = sqlite3.connect("merged.sqlite")
@@ -78,9 +135,23 @@ def main(sql, filepath, input_format, output_format):
         start_time = time.time()
         create_output(c,'merged.sqlite',connect,output_format)
         print("Task completed in %s seconds" % (time.time() - start_time))
-
-input = sys.argv
-main(f"{input[1]}", f"{input[2]}", f"{input[3]}", f"{input[4]}")
+    else:
+        input1 = input("Insert host:")
+        input2 = input("Insert user:")
+        input3 = input("Insert password:")
+        connect = mysql.connector.connect(
+            host = input1,
+            user = input2,
+            password = input3
+        )
+        c = connect.cursor()
+        c.execute("DROP DATABASE IF EXISTS testing1")
+        c.execute("CREATE DATABASE testing1")
+        c.execute("USE testing1")
+        create_merged_mysql(c,filepath,connect,input_format)
+        create_output_mysql(c,'merged.sqlite',connect,output_format)
+terminput = sys.argv
+main(f"{terminput[1]}", f"{terminput[2]}", f"{terminput[3]}", f"{terminput[4]}")
 
 
 # python main.py 'SQLite' 'db/OCEL_big_data.db' 'OCEL' 'OCED'
