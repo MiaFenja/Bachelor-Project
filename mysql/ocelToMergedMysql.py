@@ -1,4 +1,4 @@
-def create_eventType_Ocel(c,connect,ocelbase):
+def create_eventType_OCEL(c,connect,ocelbase):
     c.execute("""CREATE TABLE eventType (
                 eventTypeID VARCHAR(50),
                 eventType varchar(50),
@@ -14,7 +14,7 @@ def create_eventType_Ocel(c,connect,ocelbase):
     #c.execute(f"USE testing1")
     connect.commit()
 
-def create_event_Ocel(c,connect,ocelbase):
+def create_event_OCEL(c,connect,ocelbase):
     c.execute("""CREATE TABLE event (
                     eventID VARCHAR(50), 
                     eventTypeID VARCHAR(50), 
@@ -37,7 +37,9 @@ def create_event_Ocel(c,connect,ocelbase):
                     INSERT testing1.event(eventID, eventTypeID,eventTime) SELECT new.ocel_id, testing1.eventType.eventTypeID, new.ocel_time FROM  testing1.eventType NATURAL JOIN event WHERE event.ocel_id = new.ocel_id  and ocel_type = eventType.eventType""")
         c.execute("USE testing1")
     connect.commit()
-def create_objectObject_Ocel(c,connect,ocelbase):
+
+
+def create_objectObject_OCEL(c,connect,ocelbase):
     c.execute("""SET @id = 0;""")
     c.execute("""CREATE TABLE objectObject (
                     objectObjectID VARCHAR(50),
@@ -62,7 +64,9 @@ def create_objectObject_Ocel(c,connect,ocelbase):
                   FROM testing1.objectObject""")
     c.execute(f"USE testing1")
     connect.commit()
-def create_eventObject_Ocel(c,connect,ocelbase):
+
+
+def create_eventObject_OCEL(c,connect,ocelbase):
     c.execute("""CREATE TABLE eventObject (
                     eventID VARCHAR(50), 
                     objectID VARCHAR(50),
@@ -78,7 +82,9 @@ def create_eventObject_Ocel(c,connect,ocelbase):
     c.execute(f"""CREATE TRIGGER eventObjectTrigger AFTER INSERT ON event_object FOR EACH ROW 
               INSERT INTO testing1.eventObject VALUES(new.ocel_event_id, new.ocel_object_id, new.ocel_qualifier)""")
     c.execute("USE testing1")
-def create_objectType_Ocel(c,connect,ocelbase):
+
+
+def create_objectType_OCEL(c,connect,ocelbase):
     c.execute("""SET @id = 0;""")
     c.execute("""CREATE TABLE objectType (
                     objectTypeID VARCHAR(50),
@@ -93,7 +99,9 @@ def create_objectType_Ocel(c,connect,ocelbase):
               # INSERT testing1.objectType(objectType,objectTypeID)  SELECT new.ocel_type, CONCAT("OT-",Convert(SUBSTRING(max(testing1.objectType.objectTypeID),4),INTEGER)+1) from testing1.objectType""")
     #c.execute(f"USE testing1")
     connect.commit()
-def create_object_Ocel(c,connect,ocelbase):
+
+
+def create_object_OCEL(c,connect,ocelbase):
     c.execute("""CREATE TABLE object (
                     objectID VARCHAR(50),
                     objectTypeID VARCHAR(50),
@@ -110,7 +118,9 @@ def create_object_Ocel(c,connect,ocelbase):
                    NATURAL JOIN object WHERE object.ocel_id = new.ocel_id and ocel_type = objectType.objectType""")
     c.execute("USE testing1")
     connect.commit()
-def create_objectRelationEvent_Ocel(c,connect,ocelbase):
+
+
+def create_objectRelationEvent_OCEL(c,connect,ocelbase):
     c.execute("""CREATE TABLE objectRelationEvent (
                     objectRelationEventID VARCHAR(50),
                     objectObjectID VARCHAR(50),
@@ -120,7 +130,7 @@ def create_objectRelationEvent_Ocel(c,connect,ocelbase):
     
     connect.commit()
 
-def create_objectAttribute_Ocel(c,connect,ocelbase):
+def create_objectAttribute_OCEL(c,connect,ocelbase):
     c.execute("""SET @id = 0;""")
     c.execute("""CREATE TABLE objectAttribute (
                     objectAttributeID VARCHAR(50),
@@ -159,7 +169,7 @@ def create_objectAttribute_Ocel(c,connect,ocelbase):
     connect.commit()
             
 
-def create_objectAttributeValue_Ocel(c,connect,ocelbase):
+def create_objectAttributeValue_OCEL(c,connect,ocelbase):
     #Should triggers when something is added in the object type tables 
     c.execute("""SET @id = 0;""")
     c.execute("""CREATE TABLE objectAttributeValue (
@@ -202,7 +212,9 @@ def create_objectAttributeValue_Ocel(c,connect,ocelbase):
                   INSERT INTO testing1.objectAttributeValue values{str}""")
         c.execute("USE testing1")
     connect.commit()
-def create_objectAttributeValueEvent_Ocel(c,connect,ocelbase):
+
+
+def create_objectAttributeValueEvent_OCEL(c,connect,ocelbase):
     #Should trigger when object attribute value is updated, assumes event is updated first
     c.execute("""CREATE TABLE objectAttributeValueEvent(
               valueID VARCHAR(50),
@@ -217,7 +229,9 @@ def create_objectAttributeValueEvent_Ocel(c,connect,ocelbase):
             INSERT objectAttributeValueEvent(valueID,eventID) SELECT objectAttributeValue.valueID, event.eventID 
               FROM objectAttributeValue NATURAL JOIN event WHERE eventTime = objectAttributeValTime AND valueID = new.valueID""")
     connect.commit()
-def create_eventAttribute_Ocel(c,connect,ocelbase):
+
+
+def create_eventAttribute_OCEL(c,connect,ocelbase):
     c.execute("""SET @id = 0""")
     c.execute("""CREATE TABLE eventAttribute (
                     eventAttributeID VARCHAR(50),
@@ -253,7 +267,9 @@ def create_eventAttribute_Ocel(c,connect,ocelbase):
       #                WHERE TABLE_SCHEMA = '{ocelbase}' AND TABLE_NAME = CONCAT('event_',new.ocel_type_map) 
        #               AND COLUMN_NAME != 'ocel_id' AND COLUMN_NAME != 'ocel_time'),(SELECT(CONCAT('EA-',(Convert(SUBSTRING(max(testing1.eventAttribute),4),INTEGER)+1)))))""")
    # c.execute("""USE testing1""")
-def create_eventAttributeValue_Ocel(c,connect,ocelbase):
+
+
+def create_eventAttributeValue_OCEL(c,connect,ocelbase):
      #Once again should happen when the event tables are updated
     c.execute("""CREATE TABLE eventAttributeValue (
                     eventID VARCHAR(50),

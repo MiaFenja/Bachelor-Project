@@ -14,7 +14,7 @@ def create_view_object_OCEL(c,connect):
                  FROM object NATURAL JOIN objectType WHERE object.objectTypeID = objectType.objectTypeID""")
     connect.commit()
 
-def create_view_object_object_OCEL(c,connect):
+def create_view_objectObject_OCEL(c,connect):
     c.execute("""CREATE VIEW object_object_OCEL AS SELECT objectObject.fromObjectID AS ocel_source_id, 
                  objectObject.toObjectID AS ocel_target_id, objectObject.objectRelationType AS ocel_qualifier 
                  FROM objectObject""")
@@ -38,7 +38,7 @@ def create_view_eventOcelTypes_OCEL(c,connect):
         at = c.fetchall()
         for e in at:
             c.execute(f"""CREATE VIEW {e[0].replace(" ","")}{n[0].replace(" ","")}view AS SELECT eventID, eventTime, eventAttributeValue AS {e[0]} FROM event NATURAL JOIN eventAttribute NATURAL JOIN eventAttributeValue WHERE eventAttributeID = '{e[1]}' AND eventTypeID = '{n[1]}'""")
-            str = str + f"{e[0].replace(" ","")}{n[0].replace(" ","")}view NATURAL JOIN "
+            str = str + f"{e[0].replace(' ','')}{n[0].replace(' ','')}view NATURAL JOIN "
         str = str[:-13]
         if len(at)>0:
             c.execute(f"""CREATE VIEW {tablename} AS SELECT DISTINCT * FROM {str}""")
@@ -57,7 +57,7 @@ def create_view_objectOcelTypes_OCEL(c,connect):
         str = ""
         for e in at:
             c.execute(f"""CREATE VIEW {e[0].replace(" ","")}{n[0].replace(" ","")}view AS SELECT objectID, objectAttributeValTime, AttributeValue as {e[0]} FROM objectAttribute Natural JOIN objectAttributeValue WHERE objectAttributeID = '{e[1]}' AND objectTypeID = '{n[1]}'""")
-            str = str + f"{e[0].replace(" ","")}{n[0].replace(" ","")}view natural join "
+            str = str + f"{e[0].replace(' ','')}{n[0].replace(' ','')}view natural join "
         str = str[:-13]
         if len(at)>0:
             c.execute(f"""CREATE VIEW {tablename} AS SELECT DISTINCT * FROM {str}""")
