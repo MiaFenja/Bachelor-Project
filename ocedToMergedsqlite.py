@@ -107,9 +107,9 @@ def create_objectAttributeValue_OCED(c,connect):
                     `objectAttributeID` TEXT,
                     `attributeValue` TEXT,
                     PRIMARY KEY (`valueID`))""")
-    c.execute("""INSERT INTO objectAttributeValue
-                 SELECT objectAttributeValueID AS valueID, objectID, "" AS objectAttributeValTime, objectAttributeID, objectAttributeValue AS attributeValue 
-                 FROM ocedbase.objectAttributeValue NATURAL JOIN objectAttribute""")
+    c.execute("""INSERT INTO objectAttributeValue (valueID, objectID, objectAttributeID, attributeValue)
+                 SELECT objectAttributeValueID AS valueID, objectID, objectAttributeID, objectAttributeValue AS attributeValue 
+                 FROM ocedbase.objectAttributeValue NATURAL JOIN object NATURAL JOIN objectAttribute""")
     connect.commit()
 
 def create_objectAttributeValueEvent_OCED(c,connect):

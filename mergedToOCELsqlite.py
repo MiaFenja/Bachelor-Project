@@ -133,7 +133,7 @@ def create_new_objectOcelTypes_OCEL(c, connect):
         c.execute(f"""INSERT INTO {tablename} SELECT DISTINCT * FROM {str}""")
        else:
             c.execute(f"""INSERT INTO {tablename} SELECT DISTINCT objectID, objectAttributeValTime FROM merged.object NATURAL JOIN merged.objectAttributeValue where objectTypeID = '{n[1]}'""")
-       for e in at:
-           c.execute(f"""DROP TABLE {e[0].replace(' ', '')}{n[0].replace(' ','')}table""")
+       # for e in at:
+           # c.execute(f"""DROP TABLE {e[0].replace(' ', '')}{n[0].replace(' ','')}table""")
        connect.commit()
 

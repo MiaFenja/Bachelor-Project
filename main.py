@@ -10,7 +10,7 @@ sys.path.append("mysql/")
 import mergedToOCEDmysql as m2om
 import mergedToOCELmysql as m1om
 import ocedToMergedmysql as o2mm
-import ocelToMergedMysql as o1mm
+import ocelToMergedmysql as o1mm
 
 
 def create_merged_sqlite(c,base,connect,type):
