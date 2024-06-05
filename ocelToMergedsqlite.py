@@ -139,6 +139,7 @@ def create_objectAttribute_OCEL(c,connect):
 
 def create_objectAttributeValue_OCEL(c,connect):
     c.execute("""CREATE TABLE "objectAttributeValue" (
+              `instanceID` TEXT,
                     `valueID` TEXT,
                     `objectID` TEXT,
                     `objectAttributeValTime` TIMESTAMP,
@@ -157,12 +158,12 @@ def create_objectAttributeValue_OCEL(c,connect):
         atrName = c.fetchall()
         for j in atrName:
             c.execute(f"""INSERT INTO objectAttributeValue
-                         (objectID, objectAttributeValTime, objectAttributeID, AttributeValue)
-                         SELECT ocelbase.{i[0]}.ocel_id AS objectID, 
-                         ocelbase.{i[0]}.ocel_time AS objectAttributeValTime, objectAttributeID, 
-                         CAST(ocelbase.{i[0]}.{j[0]} AS TEXT) AS AttributeValue
-                         FROM ocelbase.{i[0]} join (object,objectAttribute) ON (ocelbase.{i[0]}.ocel_id = object.objectID 
-                         AND object.objectTypeID = objectAttribute.objectTypeID AND objectAttribute.objectAttributeName = '{j[0]}')""")
+                         (objectID, objectAttributeValTime, objectAttributeID, AttributeValue, instanceID)
+                         SELECT ocel_id AS objectID, 
+                         ocel_time AS objectAttributeValTime, objectAttributeID, 
+                         AttributeValue, instanceID
+                         FROM ( SELECT ocel_id,ocel_time, objectAttributeID, CAST(ocelbase.{i[0]}.{j[0]} AS TEXT) AS AttributeValue, ocelbase.{i[0]}.ROWID AS instanceID FROM ocelbase.{i[0]} join (object,objectAttribute) ON (ocelbase.{i[0]}.ocel_id = object.objectID 
+                         AND object.objectTypeID = objectAttribute.objectTypeID AND objectAttribute.objectAttributeName = '{j[0]}'))""")
             c.execute(f"SELECT rowid from objectAttributeValue")
             rowids = c.fetchall()
             for k in rowids:

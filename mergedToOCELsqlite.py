@@ -86,10 +86,10 @@ def create_new_eventOcelTypes_OCEL(c, connect):
            str = str + f"{e[0].replace(' ','')}{n[0].replace(' ','')}table natural JOIN "
        str = str[:-13]
        if len(at)>0:
-        c.execute(f"""INSERT INTO {tablename} SELECT DISTINCT * FROM {str}""")
+        c.execute(f"""INSERT INTO {tablename} SELECT * FROM {str}""")
        else: 
 
-           c.execute(f"""INSERT INTO {tablename} SELECT DISTINCT eventID, eventTime FROM merged.event where eventTypeID = '{n[1]}'""")
+           c.execute(f"""INSERT INTO {tablename} SELECT eventID, eventTime FROM merged.event where eventTypeID = '{n[1]}'""")
        for e in at:
            c.execute(f"""DROP TABLE {e[0].replace(" ", "")}{n[0].replace(" ","")}table""")
        connect.commit()
@@ -125,33 +125,34 @@ def create_new_objectOcelTypes_OCEL(c, connect):
                  'ocel_time' DATETIME,
                  {str} FOREIGN KEY ('ocel_id') REFERENCES 'object'('ocel_id')
                   )""")
-       str = ""
-       count = 0
-       for e in at:
-           count = count +1
-           c.execute(f"""CREATE table {e[0].replace(" ", "")}{n[0].replace(" ","")}table AS SELECT objectID, objectAttributeValTime, AttributeValue as {e[0]} FROM merged.objectAttribute NATURAL JOIN merged.objectAttributeValue WHERE objectAttributeID = '{e[1]}' AND objectTypeID = '{n[1]}'""")
-           print(f"{e[0].replace(" ", "")}{n[0].replace(" ","")}table")
-           if count%2 !=0:
-            str = str + f"{e[0].replace(' ','')}{n[0].replace(' ','')}table LEFT JOIN "
-           else:
-               str = str + f"{e[0].replace(' ','')}{n[0].replace(' ','')}table ON {at[0][0].replace(' ','')}{n[0].replace(' ','')}table.objectID = {e[0].replace(' ','')}{n[0].replace(' ','')}table.objectID  LEFT JOIN "
-       str = str[:-10]
-       str = str + f" ON {at[0][0].replace(' ','')}{n[0].replace(' ','')}table.objectID = {at[len(at)-1][0].replace(' ','')}{n[0].replace(' ','')}table.objectID"
-       str2 = ""
-       str2 = f"{at[0][0].replace(" ","")}{n[0].replace(" ", "")}table.objectID, {at[0][0].replace(" ","")}{n[0].replace(" ", "")}table.objectAttributeValTime, "
-       for e in at:
-           str2 = str2 + f" {e[0]},"
-       str2 = str2[:-1]
        if len(at)>0:
+        str = ""
+        count = 0
+        for e in at:
+            count = count +1
+            c.execute(f"""CREATE table {e[0].replace(" ", "")}{n[0].replace(" ","")}table AS SELECT merged.objectAttributeValue.instanceID, objectID, objectAttributeValTime, AttributeValue as {e[0]} FROM merged.objectAttribute NATURAL JOIN merged.objectAttributeValue WHERE objectAttributeID = '{e[1]}' AND objectTypeID = '{n[1]}'""")
+            print(f"{e[0].replace(" ", "")}{n[0].replace(" ","")}table")
+            if count ==1:
+                str = str + f"{e[0].replace(' ','')}{n[0].replace(' ','')}table LEFT JOIN "
+            else:
+                str = str + f"{e[0].replace(' ','')}{n[0].replace(' ','')}table ON {at[0][0].replace(' ','')}{n[0].replace(' ','')}table.objectID = {e[0].replace(' ','')}{n[0].replace(' ','')}table.objectID  AND {at[0][0].replace(' ','')}{n[0].replace(' ','')}table.instanceID = {e[0].replace(' ','')}{n[0].replace(' ','')}table.instanceID LEFT JOIN "
+        str = str[:-10]
+        
+        str2 = ""
+        str2 = f"{at[0][0].replace(" ","")}{n[0].replace(" ", "")}table.objectID, {at[0][0].replace(" ","")}{n[0].replace(" ", "")}table.objectAttributeValTime, "
+        for e in at:
+            str2 = str2 + f" {e[0]},"
+        str2 = str2[:-1]
+        
         print(f"INSERT INTO {tablename} SELECT {str2} FROM {str}")
-        c.execute(f"SELECT {str2} FROM {str}")
-        print(c.fetchall())
-        c.execute(f"""INSERT INTO {tablename} SELECT DISTINCT {str2} FROM {str}""")
+        c.execute(f"""INSERT INTO {tablename} SELECT {str2} FROM {str}""")
         print("done")
+        
+       
        else:
             print(f"""INSERT INTO {tablename} SELECT DISTINCT objectID, objectAttributeValTime FROM merged.object NATURAL JOIN merged.objectAttributeValue where objectTypeID = '{n[1]}'""")
-            c.execute(f"""INSERT INTO {tablename} SELECT DISTINCT objectID, objectAttributeValTime FROM merged.object NATURAL JOIN merged.objectAttributeValue where objectTypeID = '{n[1]}'""")
+            c.execute(f"""INSERT INTO {tablename} SELECT objectID, objectAttributeValTime FROM merged.object NATURAL JOIN merged.objectAttributeValue where objectTypeID = '{n[1]}'""")
        for e in at:
-            c.execute(f"""DROP TABLE {e[0].replace(' ', '')}{n[0].replace(' ','')}table""")
+           c.execute(f"""DROP TABLE {e[0].replace(' ', '')}{n[0].replace(' ','')}table""")
        connect.commit()
 

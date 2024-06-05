@@ -68,6 +68,7 @@ def create_new_objectRelationEvent_OCED(c, connect):
 
 def create_new_objectAttributeValue_OCED(c, connect):
     c.execute("""CREATE TABLE IF NOT EXISTS "objectAttributeValue" (
+                    `instanceID` TEXT,
                     `objectAttributeValueID` TEXT,
                     `objectID` TEXT,
                     `objectAttributeName` TEXT,
@@ -75,7 +76,7 @@ def create_new_objectAttributeValue_OCED(c, connect):
                     PRIMARY KEY (`objectAttributeValueID`)
               );""")
     
-    c.execute(f"""INSERT INTO objectAttributeValue SELECT valueID AS objectAttributeValueID, objectID,
+    c.execute(f"""INSERT INTO objectAttributeValue SELECT instanceID, valueID AS objectAttributeValueID, objectID,
                   objectAttributeName, attributeValue FROM merged.objectAttributeValue NATURAL JOIN merged.objectAttribute """)
     connect.commit()
 
