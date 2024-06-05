@@ -131,7 +131,6 @@ def create_new_objectOcelTypes_OCEL(c, connect):
         for e in at:
             count = count +1
             c.execute(f"""CREATE table {e[0].replace(" ", "")}{n[0].replace(" ","")}table AS SELECT merged.objectAttributeValue.instanceID, objectID, objectAttributeValTime, AttributeValue as {e[0]} FROM merged.objectAttribute NATURAL JOIN merged.objectAttributeValue WHERE objectAttributeID = '{e[1]}' AND objectTypeID = '{n[1]}'""")
-            print(f"{e[0].replace(" ", "")}{n[0].replace(" ","")}table")
             if count ==1:
                 str = str + f"{e[0].replace(' ','')}{n[0].replace(' ','')}table LEFT JOIN "
             else:
@@ -139,18 +138,15 @@ def create_new_objectOcelTypes_OCEL(c, connect):
         str = str[:-10]
         
         str2 = ""
-        str2 = f"{at[0][0].replace(" ","")}{n[0].replace(" ", "")}table.objectID, {at[0][0].replace(" ","")}{n[0].replace(" ", "")}table.objectAttributeValTime, "
+        str2 = f"{at[0][0].replace(' ','')}{n[0].replace(' ', '')}table.objectID, {at[0][0].replace(' ','')}{n[0].replace(' ', '')}table.objectAttributeValTime, "
         for e in at:
             str2 = str2 + f" {e[0]},"
         str2 = str2[:-1]
         
-        print(f"INSERT INTO {tablename} SELECT {str2} FROM {str}")
         c.execute(f"""INSERT INTO {tablename} SELECT {str2} FROM {str}""")
-        print("done")
         
        
        else:
-            print(f"""INSERT INTO {tablename} SELECT DISTINCT objectID, objectAttributeValTime FROM merged.object NATURAL JOIN merged.objectAttributeValue where objectTypeID = '{n[1]}'""")
             c.execute(f"""INSERT INTO {tablename} SELECT objectID, objectAttributeValTime FROM merged.object NATURAL JOIN merged.objectAttributeValue where objectTypeID = '{n[1]}'""")
        for e in at:
            c.execute(f"""DROP TABLE {e[0].replace(' ', '')}{n[0].replace(' ','')}table""")
