@@ -48,7 +48,7 @@ for e in events:
   c.execute(f"""SELECT objectID, EOqualifier FROM eventObject WHERE eventID = "{e[0]}" """)
   rel = []
   for e1 in c.fetchall():
-      rel.append({"objectID" : f"{e1[0]}", "qualifier":f"{e1[1]}"})
+      rel.append({"objectId" : f"{e1[0]}", "qualifier":f"{e1[1]}"})
   inside["relationships"]=rel
   insertedev.append(inside)
 database["events"]=insertedev
@@ -67,7 +67,7 @@ for o in objects:
   c.execute(f"""SELECT toObjectID, objectRelationType FROM objectObject WHERE fromObjectID = "{o[0]}" """)
   rel = []
   for e1 in c.fetchall():
-      rel.append({"objectID" : f"{e1[0]}", "qualifier":f"{e1[1]}"})
+      rel.append({"objectId" : f"{e1[0]}", "qualifier":f"{e1[1]}"})
   inside["relationships"]=rel
   insertedob.append(inside)
   
