@@ -101,15 +101,15 @@ def create_objectAttribute_OCED(c,connect):
 
 def create_objectAttributeValue_OCED(c,connect):
     c.execute("""CREATE TABLE "objectAttributeValue" (
-              `instanceID` TEXT,
                     `valueID` TEXT,
+                    `instanceID` TEXT,
                     `objectID` TEXT,
                     `objectAttributeValTime` TIMESTAMP,
                     `objectAttributeID` TEXT,
                     `attributeValue` TEXT,
                     PRIMARY KEY (`valueID`))""")
-    c.execute("""INSERT INTO objectAttributeValue (instanceID, valueID, objectID, objectAttributeID, attributeValue)
-                 SELECT instanceID, objectAttributeValueID AS valueID, objectID, objectAttributeID, objectAttributeValue AS attributeValue 
+    c.execute("""INSERT INTO objectAttributeValue (valueID, instanceID, objectID, objectAttributeID, attributeValue)
+                 SELECT objectAttributeValueID AS valueID, instanceID, objectID, objectAttributeID, objectAttributeValue AS attributeValue 
                  FROM ocedbase.objectAttributeValue NATURAL JOIN object NATURAL JOIN objectAttribute""")
     connect.commit()
 

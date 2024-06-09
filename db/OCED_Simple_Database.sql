@@ -44,6 +44,7 @@ CREATE TABLE IF NOT EXISTS "objectObject" (
 
 CREATE TABLE IF NOT EXISTS "objectAttributeValue" (
     `objectAttributeValueID` TEXT,
+    'instanceID' TEXT,
     `objectID` TEXT,
     `objectAttributeName` TEXT,
     `objectAttributeValue` TEXT,
@@ -111,17 +112,17 @@ INSERT INTO objectRelationEvent VALUES
 ('OO-2', 'clean_room2', 'cleaner cleans bathroom in room');
 
 INSERT INTO objectAttributeValue VALUES
-('OAV-1', 'hotel_room1', 'do_not_disturb', '0'),
-('OAV-2', 'hotel_room2', 'do_not_disturb', '0'),
-('OAV-3', 'vacuum_cleaner1', 'in_use', '1'),
-('OAV-4', 'cleaner1', 'available', '0'),
-('OAV-5', 'cleaner2', 'available', '1'),
-('OAV-6', 'cleaner3', 'available', '0'),
-('OAV-7', 'cleaner1', 'name', 'Christian'),
-('OAV-8', 'cleaner2', 'name', 'Johanne'),
-('OAV-9', 'cleaner3', 'name', 'Lise'),
-('OAV-10', 'chocolate1', 'amount', '3'),
-('OAV-11', 'chocolate2', 'amount', '2');
+('OAV-1', 'OG-1', 'hotel_room1', 'do_not_disturb', '0'),
+('OAV-2', 'OG-2', 'hotel_room2', 'do_not_disturb', '0'),
+('OAV-3', 'OG-3', 'vacuum_cleaner1', 'in_use', '1'),
+('OAV-4', 'OG-4', 'cleaner1', 'available', '0'),
+('OAV-5', 'OG-5', 'cleaner2', 'available', '1'),
+('OAV-6', 'OG-6', 'cleaner3', 'available', '0'),
+('OAV-7', 'OG-4', 'cleaner1', 'name', 'Christian'),
+('OAV-8', 'OG-5', 'cleaner2', 'name', 'Johanne'),
+('OAV-9', 'OG-6', 'cleaner3', 'name', 'Lise'),
+('OAV-10', 'OG-7', 'chocolate1', 'amount', '3'),
+('OAV-11', 'OG-8', 'chocolate2', 'amount', '2');
 
 
 INSERT INTO objectAttributeValueEvent VALUES
