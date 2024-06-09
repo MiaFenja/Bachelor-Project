@@ -18,7 +18,7 @@ for e in eventTypes:
     insertede.append(inside)
 database["eventTypes"]=insertede  
 
-c.execute(f"""SELECT objectType, objectTypeID, FROM objectType""")
+c.execute(f"""SELECT objectType, objectTypeID FROM objectType""")
 objectTypes = c.fetchall()
 insertedo = []
 for o in objectTypes: 
