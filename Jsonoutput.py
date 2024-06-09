@@ -64,7 +64,7 @@ for o in objects:
   for a in c.fetchall():
       list.append({"name": f"{a[0]}", "time": f"{a[2]}", "value":f"{a[1]}"})
   inside["attributes"] = list
-  c.execute(f"""SELECT toObjectID, OOqualifier FROM objectObject WHERE fromObjectID = "{o[0]}" """)
+  c.execute(f"""SELECT toObjectID, objectRelationType FROM objectObject WHERE fromObjectID = "{o[0]}" """)
   rel = []
   for e1 in c.fetchall():
       rel.append({"objectID" : f"{e1[0]}", "qualifier":f"{e1[1]}"})
