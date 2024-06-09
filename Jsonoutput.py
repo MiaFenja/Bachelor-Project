@@ -2,7 +2,7 @@ import sqlite3
 connect = sqlite3.connect("merged.sqlite")
 c = connect.cursor()
 database = {}
-c.execute(f"""SELECT eventType FROM eventType""")
+c.execute(f"""SELECT eventType, eventTypeID FROM eventType""")
 eventTypes = c.fetchall()
 insertede = []
 inserteda = []
@@ -10,7 +10,7 @@ inserteda = []
 
 for e in eventTypes: 
     inside = {"name":e[0]}
-    c.execute(f"""SELECT eventattributename FROM eventAttribute""")
+    c.execute(f"""SELECT eventattributename FROM eventAttribute WHERE eventTypeID = "{e[1]}" """)
     list = []
     for a in c.fetchall():
         list.append({"name":a[0], "type":"string"})
@@ -18,12 +18,12 @@ for e in eventTypes:
     insertede.append(inside)
 database["eventTypes"]=insertede  
 
-c.execute(f"""SELECT objectType FROM objectType""")
+c.execute(f"""SELECT objectType, objectTypeID, FROM objectType""")
 objectTypes = c.fetchall()
 insertedo = []
 for o in objectTypes: 
     inside = {"name":o[0]}
-    c.execute(f"""SELECT objectAttributeName FROM objectAttribute""")
+    c.execute(f"""SELECT objectAttributeName FROM objectAttribute WHERE objectTypeID = "{o[1]}" """)
     list = []
     for a in c.fetchall():
         list.append({"name":a[0], "type":"string"})
