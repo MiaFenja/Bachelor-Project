@@ -26,7 +26,7 @@ def create_view_objectRelationEvent_OCED(c,connect):
     connect.commit()
 
 def create_view_objectAttributeValue_OCED(c,connect):
-    c.execute(f"""CREATE VIEW objectAttributeValue_OCED AS SELECT objectID,objectAttributeName,AttributeValue FROM objectAttributeValue NATURAL JOIN objectAttribute """)
+    c.execute(f"""CREATE VIEW objectAttributeValue_OCED AS SELECT instanceID, objectID,objectAttributeName,AttributeValue FROM objectAttributeValue NATURAL JOIN objectAttribute """)
     connect.commit()
 
 def create_view_objectAttributeValueEvent_OCED(c,connect):

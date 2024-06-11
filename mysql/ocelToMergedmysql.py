@@ -10,8 +10,8 @@ def create_eventType_OCEL(c,connect,ocelbase):
     #Gets triggered when event_map_type is 
    # c.execute(f"USE {ocelbase}")
     #c.execute(f"""CREATE TRIGGER eventTypetrigger AFTER INSERT ON event_map_type FOR EACH ROW
-              # INSERT testing1.eventType(eventType,eventTypeID)  SELECT new.ocel_type, CONCAT("ET-",Convert(SUBSTRING(max(testing1.eventType.eventTypeID),4),INTEGER)+1) from testing1.eventType""")
-    #c.execute(f"USE testing1")
+              # INSERT merged.eventType(eventType,eventTypeID)  SELECT new.ocel_type, CONCAT("ET-",Convert(SUBSTRING(max(merged.eventType.eventTypeID),4),INTEGER)+1) from merged.eventType""")
+    #c.execute(f"USE merged")
     connect.commit()
 
 def create_event_OCEL(c,connect,ocelbase):
@@ -28,14 +28,11 @@ def create_event_OCEL(c,connect,ocelbase):
     #triggers every time an event type table ex event_receiveOrder is uppdated so not when event is, 
     #goes with the assumption that eventType in merged is already updated if neccesary will not work if the event type table in ocel is updated before event_map_type in ocel
     for t in names:
-        c.execute(f"""INSERT INTO event
-                   SELECT ocel_id AS eventID, eventTypeID, ocel_time AS eventTime FROM {ocelbase}.event
-                   NATURAL JOIN {ocelbase}.{t[0]} NATURAL JOIN eventType 
-                   WHERE eventType.eventType = {ocelbase}.event.ocel_type;""")
+        c.execute(f"""INSERT INTO event SELECT {ocelbase}.event.ocel_id, eventTypeID, ocel_time from {ocelbase}.event JOIN eventType ON ocel_type = eventType NATURAL JOIN {ocelbase}.{t[0]}""")
         c.execute(f"USE {ocelbase}") 
         c.execute(f"""CREATE TRIGGER {t[0]}trigger AFTER INSERT ON {ocelbase}.{t[0]} FOR EACH ROW 
-                    INSERT testing1.event(eventID, eventTypeID,eventTime) SELECT new.ocel_id, testing1.eventType.eventTypeID, new.ocel_time FROM  testing1.eventType NATURAL JOIN event WHERE event.ocel_id = new.ocel_id  and ocel_type = eventType.eventType""")
-        c.execute("USE testing1")
+                    INSERT merged.event(eventID, eventTypeID,eventTime) SELECT new.ocel_id, merged.eventType.eventTypeID, new.ocel_time FROM  merged.eventType NATURAL JOIN event WHERE event.ocel_id = new.ocel_id  and ocel_type = eventType.eventType""")
+        c.execute("USE merged")
     connect.commit()
 
 
@@ -58,11 +55,11 @@ def create_objectObject_OCEL(c,connect,ocelbase):
     #Triggers when ocel object object is updated
     c.execute(f"""USE {ocelbase}""")
     c.execute(f"""CREATE TRIGGER ootrigger AFTER INSERT ON object_object FOR EACH ROW
-                INSERT INTO testing1.objectObject(fromObjectID,toObjectID,objectRelationType, objectObjectID) 
+                INSERT INTO merged.objectObject(fromObjectID,toObjectID,objectRelationType, objectObjectID) 
                   SELECT new.ocel_source_id AS fromObjectID, new.ocel_target_id,
-                  new.ocel_qualifier AS objectRelationType,CONCAT("OO-",(Convert(SUBSTRING(max(testing1.objectObject.objectObjectID),4),INTEGER)+1))
-                  FROM testing1.objectObject""")
-    c.execute(f"USE testing1")
+                  new.ocel_qualifier AS objectRelationType,CONCAT("OO-",(Convert(SUBSTRING(max(merged.objectObject.objectObjectID),4),INTEGER)+1))
+                  FROM merged.objectObject""")
+    c.execute(f"USE merged")
     connect.commit()
 
 
@@ -70,7 +67,7 @@ def create_eventObject_OCEL(c,connect,ocelbase):
     c.execute("""CREATE TABLE eventObject (
                     eventID VARCHAR(50), 
                     objectID VARCHAR(50),
-                    OEqualifier TEXT, 
+                    EOqualifier TEXT, 
                     PRIMARY KEY (eventID,objectID))""")
     
     c.execute(f"""INSERT INTO eventObject 
@@ -80,8 +77,8 @@ def create_eventObject_OCEL(c,connect,ocelbase):
                   FROM {ocelbase}.event_object""")
     c.execute(f"USE {ocelbase}")
     c.execute(f"""CREATE TRIGGER eventObjectTrigger AFTER INSERT ON event_object FOR EACH ROW 
-              INSERT INTO testing1.eventObject VALUES(new.ocel_event_id, new.ocel_object_id, new.ocel_qualifier)""")
-    c.execute("USE testing1")
+              INSERT INTO merged.eventObject VALUES(new.ocel_event_id, new.ocel_object_id, new.ocel_qualifier)""")
+    c.execute("USE merged")
 
 
 def create_objectType_OCEL(c,connect,ocelbase):
@@ -96,8 +93,8 @@ def create_objectType_OCEL(c,connect,ocelbase):
     #Same as the eventType one
     #c.execute(f"USE {ocelbase}")
     #c.execute(f"""CREATE TRIGGER objectTypetrigger AFTER INSERT ON object_map_type FOR EACH ROW
-              # INSERT testing1.objectType(objectType,objectTypeID)  SELECT new.ocel_type, CONCAT("OT-",Convert(SUBSTRING(max(testing1.objectType.objectTypeID),4),INTEGER)+1) from testing1.objectType""")
-    #c.execute(f"USE testing1")
+              # INSERT merged.objectType(objectType,objectTypeID)  SELECT new.ocel_type, CONCAT("OT-",Convert(SUBSTRING(max(merged.objectType.objectTypeID),4),INTEGER)+1) from merged.objectType""")
+    #c.execute(f"USE merged")
     connect.commit()
 
 
@@ -109,14 +106,14 @@ def create_object_OCEL(c,connect,ocelbase):
     
     c.execute(f"""INSERT INTO object
                  SELECT {ocelbase}.object.ocel_id AS objectID, 
-                 testing1.objectType.objectTypeID FROM {ocelbase}.object LEFT JOIN testing1.objectType ON {ocelbase}.object.ocel_type = objectType.objectType""")
+                 merged.objectType.objectTypeID FROM {ocelbase}.object LEFT JOIN merged.objectType ON {ocelbase}.object.ocel_type = objectType.objectType""")
 
     
     c.execute(f"USE {ocelbase}") 
     c.execute(f"""CREATE TRIGGER objecttrigger AFTER INSERT ON object FOR EACH ROW 
-                    INSERT testing1.object(objectID, objectTypeID) SELECT new.ocel_id, testing1.objectType.objectTypeID FROM  testing1.objectType
+                    INSERT merged.object(objectID, objectTypeID) SELECT new.ocel_id, merged.objectType.objectTypeID FROM  merged.objectType
                    NATURAL JOIN object WHERE object.ocel_id = new.ocel_id and ocel_type = objectType.objectType""")
-    c.execute("USE testing1")
+    c.execute("USE merged")
     connect.commit()
 
 
@@ -160,12 +157,12 @@ def create_objectAttribute_OCEL(c,connect,ocelbase):
    # c.execute(f"""USE {ocelbase}""")
     #c.execute(f"""CREATE TRIGGER attributeUpdate AFTER UPDATE ON object_map_type FOR EACH ROW
                       #INSERT INTO objectAttribute (objectTypeID,objectAttributeName,objectAttributeID)
-                        #values((SELECT testing1.objectType.objectTypeID FROM testing1.objectType WHERE objectType = new.ocel_type), 
+                        #values((SELECT merged.objectType.objectTypeID FROM merged.objectType WHERE objectType = new.ocel_type), 
                       #(SELECT COLUMN_NAME
                      #FROM INFORMATION_SCHEMA.COLUMNS
                      # WHERE TABLE_SCHEMA = '{ocelbase}' AND TABLE_NAME = CONCAT('object_',new.ocel_type_map) 
-                     #AND COLUMN_NAME != 'ocel_id' AND COLUMN_NAME != 'ocel_time'),(SELECT(CONCAT('OA-',(Convert(SUBSTRING(max(testing1.objectAttribute),4),INTEGER)+1)))))""")
-   # c.execute("""USE testing1""")
+                     #AND COLUMN_NAME != 'ocel_id' AND COLUMN_NAME != 'ocel_time'),(SELECT(CONCAT('OA-',(Convert(SUBSTRING(max(merged.objectAttribute),4),INTEGER)+1)))))""")
+   # c.execute("""USE merged""")
     connect.commit()
             
 
@@ -174,6 +171,7 @@ def create_objectAttributeValue_OCEL(c,connect,ocelbase):
     c.execute("""SET @id = 0;""")
     c.execute("""CREATE TABLE objectAttributeValue (
                     valueID VARCHAR(50),
+                    instanceID VARCHAR(50),
                     objectID VARCHAR(50),
                     objectAttributeValTime DATETIME,
                     objectAttributeID VARCHAR(50),
@@ -192,25 +190,25 @@ def create_objectAttributeValue_OCEL(c,connect,ocelbase):
         atrName = c.fetchall()
         str = ""
         for j in atrName:
-        
             c.execute(f"""INSERT INTO objectAttributeValue
-                         (objectID, objectAttributeValTime, objectAttributeID, AttributeValue, valueID)
-                         SELECT {ocelbase}.{i[0]}.ocel_id AS objectID, 
-                         {ocelbase}.{i[0]}.ocel_time AS objectAttributeValTime, objectAttributeID, 
-                         CONVERT({ocelbase}.{i[0]}.{j[0]},VARCHAR(50)) AS AttributeValue, CONCAT('OAV-',(@id := @id + 1)) 
-                         FROM {ocelbase}.{i[0]} join (object,objectAttribute) ON ({ocelbase}.{i[0]}.ocel_id = object.objectID 
-                         AND object.objectTypeID = objectAttribute.objectTypeID AND objectAttribute.objectAttributeName = '{j[0]}')""")
+                         (objectID, instanceID, objectAttributeValTime, objectAttributeID, AttributeValue, valueID)
+                         SELECT ocel_id,ROW_NUMBER() OVER () AS instanceID,ocel_time, objectAttributeID, 
+                         cast({ocelbase}.{i[0]}.{j[0]} as VARCHAR(50)) AS AttributeValue, CONCAT('OAV-',(@id := @id + 1)) FROM {ocelbase}.{i[0]}
+                           inner join object ON {ocelbase}.{i[0]}.ocel_id = object.objectID inner join 
+                           objectAttribute ON object.objectTypeID = objectAttribute.objectTypeID
+                             AND objectAttribute.objectAttributeName
+                               = '{j[0]}'""")
            
             c.execute(f"SELECT objectAttributeID FROM objectAttribute WHERE objectAttributeName = '{j[0]}'")
             z = c.fetchall()
-            str += f"((SELECT(CONCAT('OAV-',(Convert(SUBSTRING(max(testing1.objectAttributeValue),5),INTEGER)+1)))),new.ocel_id,new.ocel_time,'{z[0][0]}',new.{j[0]})," 
+            str += f"((SELECT(CONCAT('OAV-',(Convert(SUBSTRING(max(merged.objectAttributeValue),5),INTEGER)+1)))),new.ocel_id,new.ocel_time,'{z[0][0]}',new.{j[0]})," 
         str=str[:-1]
         c.execute(f"USE {ocelbase}")
        
         #Adds a new row for each line added
         c.execute(f"""CREATE TRIGGER {i[0]}trigger AFTER INSERT ON {i[0]} FOR EACH ROW 
-                  INSERT INTO testing1.objectAttributeValue values{str}""")
-        c.execute("USE testing1")
+                  INSERT INTO merged.objectAttributeValue values{str}""")
+        c.execute("USE merged")
     connect.commit()
 
 
@@ -261,12 +259,12 @@ def create_eventAttribute_OCEL(c,connect,ocelbase):
    # c.execute(f"""USE {ocelbase}""")
    # c.execute(f"""CREATE TRIGGER attributeUpdateev AFTER UPDATE ON event_map_type FOR EACH ROW
      #                 INSERT INTO eventAttribute (eventTypeID,eventAttributeName,eventAttributeID)
-     #                    values((SELECT testing1.eventType.eventTypeID FROM testing1.eventType WHERE eventType = new.ocel_type), 
+     #                    values((SELECT merged.eventType.eventTypeID FROM merged.eventType WHERE eventType = new.ocel_type), 
      #                 (SELECT COLUMN_NAME
       #                FROM INFORMATION_SCHEMA.COLUMNS
       #                WHERE TABLE_SCHEMA = '{ocelbase}' AND TABLE_NAME = CONCAT('event_',new.ocel_type_map) 
-       #               AND COLUMN_NAME != 'ocel_id' AND COLUMN_NAME != 'ocel_time'),(SELECT(CONCAT('EA-',(Convert(SUBSTRING(max(testing1.eventAttribute),4),INTEGER)+1)))))""")
-   # c.execute("""USE testing1""")
+       #               AND COLUMN_NAME != 'ocel_id' AND COLUMN_NAME != 'ocel_time'),(SELECT(CONCAT('EA-',(Convert(SUBSTRING(max(merged.eventAttribute),4),INTEGER)+1)))))""")
+   # c.execute("""USE merged""")
 
 
 def create_eventAttributeValue_OCEL(c,connect,ocelbase):
@@ -298,7 +296,7 @@ def create_eventAttributeValue_OCEL(c,connect,ocelbase):
             c.execute(f"SELECT eventAttributeID FROM eventAttribute WHERE eventAttributeName = '{j[0]}'")
             z = c.fetchall()
             
-            #(SELECT(CONCAT('EAV-',(Convert(SUBSTRING(max(testing1.eventAttributeValue),5),INTEGER)+1))))
+            #(SELECT(CONCAT('EAV-',(Convert(SUBSTRING(max(merged.eventAttributeValue),5),INTEGER)+1))))
             str += f"(new.ocel_id,'{z[0][0]}',new.{j[0]})," 
         str = str[:-1]
         
@@ -306,8 +304,8 @@ def create_eventAttributeValue_OCEL(c,connect,ocelbase):
         if len(atrName) !=0:
             c.execute(f"USE {ocelbase}")
             c.execute(f"""CREATE TRIGGER {i[0]}valtrigger AFTER INSERT ON {i[0]} FOR EACH ROW 
-                    INSERT testing1.eventAttributeValue values{str}""")
-            c.execute("USE testing1")
+                    INSERT merged.eventAttributeValue values{str}""")
+            c.execute("USE merged")
     connect.commit()
 
 
