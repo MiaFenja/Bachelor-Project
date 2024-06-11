@@ -192,7 +192,7 @@ def create_objectAttributeValue_OCEL(c,connect,ocelbase):
         for j in atrName:
             c.execute(f"""INSERT INTO objectAttributeValue
                          (objectID, instanceID, objectAttributeValTime, objectAttributeID, AttributeValue, valueID)
-                         SELECT ocel_id,ROW_NUMBER() OVER () AS instanceID,ocel_time, objectAttributeID, 
+                         SELECT ocel_id,CONCAT("OG-", ROW_NUMBER() OVER ()) AS instanceID,ocel_time, objectAttributeID, 
                          cast({ocelbase}.{i[0]}.{j[0]} as VARCHAR(50)) AS AttributeValue, CONCAT('OAV-',(@id := @id + 1)) FROM {ocelbase}.{i[0]}
                            inner join object ON {ocelbase}.{i[0]}.ocel_id = object.objectID inner join 
                            objectAttribute ON object.objectTypeID = objectAttribute.objectTypeID
@@ -201,13 +201,14 @@ def create_objectAttributeValue_OCEL(c,connect,ocelbase):
            
             c.execute(f"SELECT objectAttributeID FROM objectAttribute WHERE objectAttributeName = '{j[0]}'")
             z = c.fetchall()
-            str += f"((SELECT(CONCAT('OAV-',(Convert(SUBSTRING(max(merged.objectAttributeValue),5),INTEGER)+1)))),new.ocel_id,new.ocel_time,'{z[0][0]}',new.{j[0]})," 
+
+            str += f"""(CONCAT("OAV-", ((SELECT count(valueID) FROM (SELECT * FROM merged.objectAttributeValue) AS o )+1)),CONCAT("OG-",((SELECT count(instanceID) FROM  (SELECT * FROM merged.objectAttributeValue WHERE objectID = new.ocel_id) AS o)+1)),new.ocel_id,new.ocel_time,'{z[0][0]}',new.{j[0]}),""" 
         str=str[:-1]
         c.execute(f"USE {ocelbase}")
        
         #Adds a new row for each line added
         c.execute(f"""CREATE TRIGGER {i[0]}trigger AFTER INSERT ON {i[0]} FOR EACH ROW 
-                  INSERT INTO merged.objectAttributeValue values{str}""")
+                   INSERT INTO merged.objectAttributeValue values{str}""")
         c.execute("USE merged")
     connect.commit()
 

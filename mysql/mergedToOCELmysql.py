@@ -31,7 +31,7 @@ def create_view_eventOcelTypes_OCEL(c,connect):
     c.execute("SELECT eventType, eventTypeID FROM eventType")
     tablenames = c.fetchall()
     for n in tablenames:
-        tablename = f"event_{n[0].replace(' ','')}"
+        tablename = f"event_{n[0].replace(' ','')}_OCEL"
         c.execute(f"SELECT eventAttributeName, eventAttributeID from eventAttribute WHERE eventTypeID = '{n[1]}'")
         str = ""
         at = c.fetchall()
@@ -52,7 +52,7 @@ def create_view_objectOcelTypes_OCEL(c,connect):
     for n in tablenames:
         c.execute(f"SELECT objectAttributeName, objectAttributeID from objectAttribute WHERE objectTypeID = '{n[1]}'")
         at = c.fetchall()
-        tablename = f"object_{n[0].replace(' ','')}"
+        tablename = f"object_{n[0].replace(' ','')}_OCEL"
         str = ""
         str2 = ""
         count = 0
