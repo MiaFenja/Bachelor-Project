@@ -69,8 +69,6 @@ def create_view_objectOcelTypes_OCEL(c,connect):
             for e in at:
                 str2 = str2 + f" {e[0]}, "
             str2 = str2[:-2]
-            print(str)
-            print(str2)
             c.execute(f"""CREATE VIEW {tablename} AS SELECT {str2} FROM {str}""")
         else:
             c.execute(f"""CREATE VIEW {tablename} AS SELECT DISTINCT objectID, objectValTime FROM object NATURAL JOIN objectAttributeValue where objectTypeID = '{n[1]}'""")
