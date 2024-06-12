@@ -104,7 +104,6 @@ def create_objectAttribute_OCED(c,connect,ocedbase):
     objectat = c.fetchall()
     c.execute("""SET @id = 0""")
     for oa in objectat:
-        print(oa[0])
         c.execute(f"""INSERT INTO objectAttribute
                   values(CONCAT('OA-',(@id := @id + 1)),'{oa[0]}', '{oa[1]}')""")
     #c.execute(f"""USE {ocedbase}""")
