@@ -63,8 +63,6 @@ def create_merged_mysql(c,base,connect,type):
         o1mm.create_objectAttributeValueEvent_OCEL(c,connect,base)
         o1mm.create_eventAttribute_OCEL(c,connect,base)
         o1mm.create_eventAttributeValue_OCEL(c,connect,base)
-    elif type == "jsonocel":
-        jsono.createJson(c,connect)
     else:
         o2mm.create_eventType_OCED(c,connect,base)
         o2mm.create_event_OCED(c,connect,base)
