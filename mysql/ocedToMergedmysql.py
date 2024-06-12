@@ -119,16 +119,16 @@ def create_objectAttribute_OCED(c,connect,ocedbase):
 
 def create_objectAttributeValue_OCED(c,connect,ocedbase):
     c.execute("""CREATE TABLE objectAttributeValue (
-                    instanceID TEXT,
                     valueID VARCHAR(50),
+                    instanceID TEXT,
                     objectID VARCHAR(50),
                     objectAttributeValTime DATETIME,
                     objectAttributeID VARCHAR(50),
                     attributeValue VARCHAR(50),
                     PRIMARY KEY (valueID))""")
-    c.execute(f"""INSERT INTO objectAttributeValue (instanceID, valueID, objectID, objectAttributeID, attributeValue) 
-                 SELECT instanceID, objectAttributeValueID AS valueID, objectID, objectAttributeID, objectAttributeValue AS attributeValue 
-                 FROM {ocedbase}.objectAttributeValue NATURAL JOIN objectAttribute""")
+    c.execute(f"""INSERT INTO objectAttributeValue (valueID, instanceID, objectID, objectAttributeID, attributeValue) 
+                 SELECT objectAttributeValueID AS valueID, instanceID, objectID, objectAttributeID, objectAttributeValue AS attributeValue 
+                 FROM {ocedbase}.objectAttributeValue NATURAL JOIN object NATURAL JOIN objectAttribute""")
     c.execute(f"""USE {ocedbase}""")
     c.execute(f"""CREATE TRIGGER oavtrigger AFTER INSERT ON objectAttributeValue FOR EACH ROW 
               INSERT merged.objectAttributeValue(instanceID, valueID,objectID,objectAttributeID, attributeValue) values(new.instanceID, new.objectAttributeValueID, new.objectID, (SELECT objectAttributeID FROM merged.objectAttribute Where new.objectAttributeName = merged.objectAttribute.objectAttributeName), new.objectAttributeValue)""")

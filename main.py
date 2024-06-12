@@ -63,8 +63,6 @@ def create_merged_mysql(c,base,connect,type):
         o1mm.create_objectAttributeValueEvent_OCEL(c,connect,base)
         o1mm.create_eventAttribute_OCEL(c,connect,base)
         o1mm.create_eventAttributeValue_OCEL(c,connect,base)
-    elif type == "jsonocel":
-        jsono.createJson(c,connect)
     else:
         o2mm.create_eventType_OCED(c,connect,base)
         o2mm.create_event_OCED(c,connect,base)
@@ -80,7 +78,7 @@ def create_merged_mysql(c,base,connect,type):
         o2mm.create_eventAttributeValue_OCED(c,connect,base)   
 
 def create_output_sqlite(c, merged, connect, type):
-    c.execute(f"ATTACH DATABASE 'merged.sqlite' as 'merged'")
+    c.execute(f"ATTACH DATABASE 'output/merged.sqlite' as 'merged'")
 
     if type == 'OCED':
         m2o.create_new_event_OCED(c, connect) 
@@ -115,7 +113,7 @@ def create_output_mysql(c,merged,connect,type):
         m2om.create_view_objectObject_OCED(c, connect)
         m2om.create_view_objectRelationEvent_OCED(c, connect)
         m2om.create_view_objectAttributeValue_OCED(c, connect)
-        m2om.create_new_objectAttributeValueEvent_OCED(c, connect)
+        m2om.create_view_objectAttributeValueEvent_OCED(c, connect)
     elif type == 'jsonocel':
         jsono.createJson(c,connect)
     else:
@@ -172,3 +170,13 @@ main(f"{terminput[1]}", f"{terminput[2]}", f"{terminput[3]}", f"{terminput[4]}")
 
 # python main.py 'SQLite' 'db/OCEL_big_data.db' 'OCEL' 'OCED'
 # python main.py 'SQLite' 'db/OCEL_Simple_Database.db' 'OCEL' 'OCEL'
+
+# python main.py 'mySQL' 'timeTester' 'OCED' 'OCED'
+
+# Host: localhost
+# User: admin
+# Pswd: 1234
+
+# 5x: python main.py 'mySQL' 'timeTester' 'OCEL' 'OCEL'
+# 5x: python main.py 'mySQL' 'timeTester' 'OCEL' 'OCED'
+
