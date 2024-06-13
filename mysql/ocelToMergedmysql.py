@@ -189,6 +189,7 @@ def create_objectAttributeValue_OCEL(c,connect,ocelbase):
                       AND COLUMN_NAME != 'ocel_id' AND COLUMN_NAME != 'ocel_time'""")
         atrName = c.fetchall()
         str = ""
+        count = 1
         for j in atrName:
             c.execute(f"""INSERT INTO objectAttributeValue
                          (objectID, instanceID, objectAttributeValTime, objectAttributeID, AttributeValue, valueID)
@@ -202,13 +203,14 @@ def create_objectAttributeValue_OCEL(c,connect,ocelbase):
             c.execute(f"SELECT objectAttributeID FROM objectAttribute WHERE objectAttributeName = '{j[0]}'")
             z = c.fetchall()
 
-            str += f"""(CONCAT("OAV-", ((SELECT count(valueID) FROM (SELECT * FROM merged.objectAttributeValue) AS o )+1)),CONCAT("OG-",((SELECT count(instanceID) FROM  (SELECT * FROM merged.objectAttributeValue WHERE objectID = new.ocel_id) AS o)+1)),new.ocel_id,new.ocel_time,'{z[0][0]}',new.{j[0]}),""" 
+            str += f"""(CONCAT("OAV-", ((SELECT count(valueID)+{count} FROM (SELECT * FROM merged.objectAttributeValue) as o ))),CONCAT("OG-",((SELECT count(instanceID)+1 FROM  (SELECT * FROM merged.objectAttributeValue WHERE objectID = new.ocel_id) as o))),new.ocel_id,new.ocel_time,'{z[0][0]}',new.{j[0]}),""" 
+            count += 1
         str=str[:-1]
         c.execute(f"USE {ocelbase}")
        
         #Adds a new row for each line added
         c.execute(f"""CREATE TRIGGER {i[0]}trigger AFTER INSERT ON {i[0]} FOR EACH ROW 
-                   INSERT INTO merged.objectAttributeValue values{str}""")
+                   INSERT INTO merged.objectAttributeValue SELECT * from (values{str}) as t""")
         c.execute("USE merged")
     connect.commit()
 
