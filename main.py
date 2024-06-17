@@ -168,15 +168,3 @@ terminput = sys.argv
 main(f"{terminput[1]}", f"{terminput[2]}", f"{terminput[3]}", f"{terminput[4]}")
 
 
-# python main.py 'SQLite' 'db/OCEL_big_data.db' 'OCEL' 'OCED'
-# python main.py 'SQLite' 'db/OCEL_Simple_Database.db' 'OCEL' 'OCEL'
-
-# python main.py 'mySQL' 'timeTester' 'OCED' 'OCED'
-
-# Host: localhost
-# User: admin
-# Pswd: 1234
-
-# 5x: python main.py 'mySQL' 'timeTester' 'OCEL' 'OCEL'
-# 5x: python main.py 'mySQL' 'timeTester' 'OCEL' 'OCED'
-
