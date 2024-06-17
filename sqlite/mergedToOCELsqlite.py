@@ -95,23 +95,10 @@ def create_new_eventOcelTypes_OCEL(c, connect):
        connect.commit()
 
 def create_new_objectOcelTypes_OCEL(c, connect):
-   #What is needed: type, for name
-   #attribute name
-   #attribute values
-   #time 
-   #locations
-   #eventType
-   #attribute
-   #attributevalues 
-   #event
-   #in common: eventType and eventAttribute and event= eventTypeID
-   #eventAttributeValuye and event: eventID
-   #eventAttribute and eventAttributeValue : eventAttributeID
-   #Get the tablenames:
+  
    c.execute("""SELECT objectType, objectTypeID FROM merged.objectType""")
    tablenames = c.fetchall()
-   # For each type there are several possibilities: No attributes, one attribute and multiple attributes
-   #go through create table:
+  
    for n in tablenames:
        tablename = f"object_{n[0].replace(' ','')}"
        c.execute(f"SELECT objectAttributeName, objectAttributeID FROM merged.objectAttribute where objectTypeID ='{n[1]}'")
