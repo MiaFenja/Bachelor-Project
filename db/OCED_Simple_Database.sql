@@ -44,7 +44,7 @@ CREATE TABLE IF NOT EXISTS "objectObject" (
 
 CREATE TABLE IF NOT EXISTS "objectAttributeValue" (
     `objectAttributeValueID` TEXT,
-    'instanceID' TEXT,
+    `instanceID` TEXT,
     `objectID` TEXT,
     `objectAttributeName` TEXT,
     `objectAttributeValue` TEXT,
@@ -61,12 +61,12 @@ CREATE TABLE IF NOT EXISTS "objectAttributeValueEvent" (
 # Insertion 
 
 INSERT INTO event VALUES
-('vacuum1', 'Vacuum', "2024-03-20T10:30:18.000Z"),
-('vacuum2', 'Vacuum', "2024-04-01T09:36:51.000Z"),
-('make_bed1', 'Make Bed', "2024-03-20T10:40:33.000Z"),
-('make_bed2', 'Make Bed', "2024-04-01T09:30:47.000Z"),
-('clean_bathroom1', 'Clean Bathroom', "2024-03-20T10:45:03.000Z"),
-('clean_bathroom2', 'Clean Bathroom', "2024-04-01T09:15:24.000Z");
+('vacuum1', 'Vacuum', '2024-03-20T10:30:18.000Z'),
+('vacuum2', 'Vacuum', '2024-04-01T09:36:51.000Z'),
+('make_bed1', 'Make Bed', '2024-03-20T10:40:33.000Z'),
+('make_bed2', 'Make Bed', '2024-04-01T09:30:47.000Z'),
+('clean_bathroom1', 'Clean Bathroom', '2024-03-20T10:45:03.000Z'),
+('clean_bathroom2', 'Clean Bathroom', '2024-04-01T09:15:24.000Z');
 
 INSERT INTO eventAttributeValue VALUES
 ('vacuum1', 'finished', '1'),
