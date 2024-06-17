@@ -7,11 +7,7 @@ def create_eventType_OCEL(c,connect,ocelbase):
     c.execute("""SET @id = 0""")
     c.execute(f"""INSERT INTO eventType(eventType,eventTypeID)
               SELECT ocel_type AS eventType, CONCAT('ET-',(@id := @id +1)) AS eventTypeID from {ocelbase}.event_map_type""")
-    #Gets triggered when event_map_type is 
-   # c.execute(f"USE {ocelbase}")
-    #c.execute(f"""CREATE TRIGGER eventTypetrigger AFTER INSERT ON event_map_type FOR EACH ROW
-              # INSERT merged.eventType(eventType,eventTypeID)  SELECT new.ocel_type, CONCAT("ET-",Convert(SUBSTRING(max(merged.eventType.eventTypeID),4),INTEGER)+1) from merged.eventType""")
-    #c.execute(f"USE merged")
+   
     connect.commit()
 
 def create_event_OCEL(c,connect,ocelbase):
@@ -25,7 +21,7 @@ def create_event_OCEL(c,connect,ocelbase):
                   FROM {ocelbase}.event_map_type""")
     
     names = c.fetchall()
-    #triggers every time an event type table ex event_receiveOrder is uppdated so not when event is, 
+    #triggers every time an event type table fx event_receiveOrder is uppdated so not when event is, 
     #goes with the assumption that eventType in merged is already updated if neccesary will not work if the event type table in ocel is updated before event_map_type in ocel
     for t in names:
         c.execute(f"""INSERT INTO event SELECT {ocelbase}.event.ocel_id, eventTypeID, ocel_time from {ocelbase}.event JOIN eventType ON ocel_type = eventType NATURAL JOIN {ocelbase}.{t[0]}""")
@@ -90,11 +86,7 @@ def create_objectType_OCEL(c,connect,ocelbase):
     
     c.execute(f"""INSERT INTO objectType (objectType, objectTypeID) 
                   SELECT {ocelbase}.object_map_type.ocel_type AS objectType, CONCAT('OT-',(@id := @id + 1)) FROM {ocelbase}.object_map_type""")
-    #Same as the eventType one
-    #c.execute(f"USE {ocelbase}")
-    #c.execute(f"""CREATE TRIGGER objectTypetrigger AFTER INSERT ON object_map_type FOR EACH ROW
-              # INSERT merged.objectType(objectType,objectTypeID)  SELECT new.ocel_type, CONCAT("OT-",Convert(SUBSTRING(max(merged.objectType.objectTypeID),4),INTEGER)+1) from merged.objectType""")
-    #c.execute(f"USE merged")
+
     connect.commit()
 
 
@@ -154,15 +146,7 @@ def create_objectAttribute_OCEL(c,connect,ocelbase):
             
    
     
-   # c.execute(f"""USE {ocelbase}""")
-    #c.execute(f"""CREATE TRIGGER attributeUpdate AFTER UPDATE ON object_map_type FOR EACH ROW
-                      #INSERT INTO objectAttribute (objectTypeID,objectAttributeName,objectAttributeID)
-                        #values((SELECT merged.objectType.objectTypeID FROM merged.objectType WHERE objectType = new.ocel_type), 
-                      #(SELECT COLUMN_NAME
-                     #FROM INFORMATION_SCHEMA.COLUMNS
-                     # WHERE TABLE_SCHEMA = '{ocelbase}' AND TABLE_NAME = CONCAT('object_',new.ocel_type_map) 
-                     #AND COLUMN_NAME != 'ocel_id' AND COLUMN_NAME != 'ocel_time'),(SELECT(CONCAT('OA-',(Convert(SUBSTRING(max(merged.objectAttribute),4),INTEGER)+1)))))""")
-   # c.execute("""USE merged""")
+   
     connect.commit()
             
 
@@ -259,16 +243,6 @@ def create_eventAttribute_OCEL(c,connect,ocelbase):
             
     connect.commit()
 
-   # c.execute(f"""USE {ocelbase}""")
-   # c.execute(f"""CREATE TRIGGER attributeUpdateev AFTER UPDATE ON event_map_type FOR EACH ROW
-     #                 INSERT INTO eventAttribute (eventTypeID,eventAttributeName,eventAttributeID)
-     #                    values((SELECT merged.eventType.eventTypeID FROM merged.eventType WHERE eventType = new.ocel_type), 
-     #                 (SELECT COLUMN_NAME
-      #                FROM INFORMATION_SCHEMA.COLUMNS
-      #                WHERE TABLE_SCHEMA = '{ocelbase}' AND TABLE_NAME = CONCAT('event_',new.ocel_type_map) 
-       #               AND COLUMN_NAME != 'ocel_id' AND COLUMN_NAME != 'ocel_time'),(SELECT(CONCAT('EA-',(Convert(SUBSTRING(max(merged.eventAttribute),4),INTEGER)+1)))))""")
-   # c.execute("""USE merged""")
-
 
 def create_eventAttributeValue_OCEL(c,connect,ocelbase):
      #Once again should happen when the event tables are updated
@@ -299,7 +273,7 @@ def create_eventAttributeValue_OCEL(c,connect,ocelbase):
             c.execute(f"SELECT eventAttributeID FROM eventAttribute WHERE eventAttributeName = '{j[0]}'")
             z = c.fetchall()
             
-            #(SELECT(CONCAT('EAV-',(Convert(SUBSTRING(max(merged.eventAttributeValue),5),INTEGER)+1))))
+           
             str += f"(new.ocel_id,'{z[0][0]}',new.{j[0]})," 
         str = str[:-1]
         

@@ -106,14 +106,6 @@ def create_objectAttribute_OCED(c,connect,ocedbase):
     for oa in objectat:
         c.execute(f"""INSERT INTO objectAttribute
                   values(CONCAT('OA-',(@id := @id + 1)),'{oa[0]}', '{oa[1]}')""")
-    #c.execute(f"""USE {ocedbase}""")
-    #c.execute(f"""CREATE TRIGGER objectatTrigger AFTER INSERT ON objectAttributeValue FOR EACH ROW 
-     #         INSERT merged.objectAttribute
-    #  SELECT DISTINCT (SELECT CONCAT('OA-',(Convert(SUBSTRING(max(merged.objectAttribute.objectAttributeID),4),INTEGER)+1)) FROM merged.objectAttribute)
-#, objectTypeID, new.objectAttributeName
-      #         FROM merged.objectType NATURAL JOIN merged.object NATURAL JOIN objectAttributeValue
-       #        WHERE new.objectAttributeName = objectAttributeName and (objectTypeID NOT IN (SELECT objectTypeID FROM merged.objectAttribute) OR new.objectAttributeName NOT IN (SELECT objectAttributeName FROM merged.objectAttribute))"""  )
-    #c.execute(f"""USE merged""")
     connect.commit()
             
 
@@ -163,14 +155,6 @@ def create_eventAttribute_OCED(c,connect,ocedbase):
     for ea in eventat:
         c.execute(f"""INSERT INTO eventAttribute
                   values(CONCAT('EA-',(@id := @id + 1)),'{ea[0]}', '{ea[1]}')""")
-    #c.execute(f"""USE {ocedbase}""")
-    #c.execute(f"""CREATE TRIGGER eventatTrigger AFTER INSERT ON eventAttributeValue FOR EACH ROW 
-     #         INSERT merged.eventAttribute
-     # SELECT DISTINCT (SELECT CONCAT('EA-',(Convert(SUBSTRING(max(merged.eventAttribute.eventAttributeID),4),INTEGER)+1)) FROM merged.eventAttribute)
-#, eventTypeID, new.eventAttributeName
-   #            FROM merged.eventType NATURAL JOIN merged.event NATURAL JOIN eventAttributeValue
-     #          WHERE new.eventAttributeName = eventAttributeName and (eventTypeID NOT IN (SELECT eventTypeID FROM merged.eventAttribute) OR new.eventAttributeName NOT IN (SELECT eventAttributeName FROM merged.eventAttribute))"""  )
-   # c.execute(f"""USE merged""")
     connect.commit()
 
 
