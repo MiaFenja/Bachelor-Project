@@ -90,7 +90,7 @@ def create_output_sqlite(c, merged, connect, type):
         m2o.create_new_objectAttributeValue_OCED(c, connect)
         m2o.create_new_objectAttributeValueEvent_OCED(c, connect)
     elif type == "jsonocel":
-        connect = sqlite3.connect("merged.sqlite")
+        connect = sqlite3.connect("output/merged.sqlite")
         c = connect.cursor()
         jsono.createJson(c,connect)
     else:
@@ -127,7 +127,7 @@ def create_output_mysql(c,merged,connect,type):
         m1om.create_view_objectOcelTypes_OCEL(c, connect)
 
 
-def main(sql, filepath, input_format, output_format, output_name = "newDB"):
+def main(sql, filepath, input_format, output_format):
     if sql == 'SQLite':
         connect = sqlite3.connect("output/merged.sqlite")
         c = connect.cursor()
@@ -137,7 +137,7 @@ def main(sql, filepath, input_format, output_format, output_name = "newDB"):
         print("Task completed in %s seconds" % (time.time() - start_time))
 
 
-        connect = sqlite3.connect(f"output/{output_name}.sqlite")
+        connect = sqlite3.connect(f"output/newDB.sqlite")
         c = connect.cursor()
 
         start_time = time.time()
