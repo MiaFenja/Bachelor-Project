@@ -1,3 +1,4 @@
+DROP DATABASE timeTester;
 CREATE DATABASE timeTester;
 USE timeTester;
 
@@ -157,6 +158,5 @@ insert INTO object_Package values
 
 
 COMMIT;
-
 
 

@@ -153,12 +153,14 @@ def main(sql, filepath, input_format, output_format):
             password = input3
         )
         c = connect.cursor()
-        c.execute("USE merged")
+
         if input_format != "merged":
             c.execute("DROP DATABASE IF EXISTS merged")
             c.execute("CREATE DATABASE merged")
+
+        c.execute("USE merged")
            
-            
+        if input_format != "merged":
             start_time = time.time()
             create_merged_mysql(c,filepath,connect,input_format)
             print("Task completed in %s seconds" % (time.time() - start_time))
