@@ -131,10 +131,10 @@ def main(sql, filepath, input_format, output_format):
     if sql == 'SQLite':
         connect = sqlite3.connect("output/merged.sqlite")
         c = connect.cursor()
-        
-        start_time = time.time()
-        create_merged_sqlite(c,f"'{filepath}'",connect,input_format)
-        print("Task completed in %s seconds" % (time.time() - start_time))
+        if input_format != "merged":
+            start_time = time.time()
+            create_merged_sqlite(c,f"'{filepath}'",connect,input_format)
+            print("Task completed in %s seconds" % (time.time() - start_time))
 
 
         connect = sqlite3.connect(f"output/newDB.sqlite")
@@ -153,17 +153,20 @@ def main(sql, filepath, input_format, output_format):
             password = input3
         )
         c = connect.cursor()
-        c.execute("DROP DATABASE IF EXISTS merged")
-        c.execute("CREATE DATABASE merged")
         c.execute("USE merged")
-        
-        start_time = time.time()
-        create_merged_mysql(c,filepath,connect,input_format)
-        print("Task completed in %s seconds" % (time.time() - start_time))
+        if input_format != "merged":
+            c.execute("DROP DATABASE IF EXISTS merged")
+            c.execute("CREATE DATABASE merged")
+           
+            
+            start_time = time.time()
+            create_merged_mysql(c,filepath,connect,input_format)
+            print("Task completed in %s seconds" % (time.time() - start_time))
 
         start_time = time.time()
         create_output_mysql(c,'output/merged.sqlite',connect,output_format)
         print("Task completed in %s seconds" % (time.time() - start_time))
+    
 terminput = sys.argv
 main(f"{terminput[1]}", f"{terminput[2]}", f"{terminput[3]}", f"{terminput[4]}")
 
