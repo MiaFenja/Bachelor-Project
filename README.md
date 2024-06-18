@@ -25,8 +25,11 @@ python main.py 'mySQL' 'myDB' 'OCEL' 'OCED'
 ```
 
 After the command above have run, you will have to input the following:
+
 Host of the database
+
 Your user
+
 Your password
 
 ## JSON
