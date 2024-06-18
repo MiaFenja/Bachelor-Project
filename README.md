@@ -16,8 +16,8 @@ python main.py 'SQLite' 'db/OCEL_big_data.db' 'OCEL' 'OCED'
 Here a SQLite OCEL database is converted into a SQLite OCED database
 
 
-## mySQL
-If you want to run the program with mySQL, you will first need to make sure your database are running. Here you will also have to know the name of the database you want to convert.
+## MySQL
+If you want to run the program with MySQL, you will first need to make sure your database are running. Here you will also have to know the name of the database you want to convert.
 
 Example:
 ```bash
@@ -37,6 +37,6 @@ Example:
 python main.py ‘mySQL’  'myDB'  ‘OCED’  ‘jsonocel’
 ```
 
-# output
+# Output
 For an SQLite file the merged database and the output database will be in the ‘output’ folder in the project with the name ‘newDB.sqlite’ . If you are using mySQL instead, the output will be views in the new database called “merged”. The views all end with either _OCED or _OCEL depending on what format you chose as the output.
 The JSON file will show up as ‘ocel.json’ in the ‘output’ folder. 
