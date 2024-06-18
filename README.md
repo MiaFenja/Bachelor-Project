@@ -33,11 +33,19 @@ Your user
 Your password
 
 ## JSON
-To get a JSON output, you will need to do the same as for SQLite or mySQL, according to which one you want to use, but with a slight change: the output format must be “jsonocel”
+To get a JSON output, you will need to do the same as for SQLite or mySQL, according to which one you want to use, but with a slight change: the output format must be “jsonocel”.
 
 Example:
 ```bash
 python main.py ‘mySQL’  'myDB'  ‘OCED’  ‘jsonocel’
+```
+
+## Merged as input
+If you already ran the program previously and want to convert it into a different format, you can do it by writting "merged" as the input format.
+
+Example:
+```bash
+python main.py 'SQLite' 'output/merged.sqlite' 'merged' 'OCED'
 ```
 
 # Output
