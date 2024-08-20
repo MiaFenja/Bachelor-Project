@@ -21,7 +21,7 @@ If you want to run the program with MySQL, you will first need to make sure your
 
 Example:
 ```bash
-python main.py 'mySQL' 'myDB' 'OCEL' 'OCED'
+python main.py 'MySQL' 'myDB' 'OCEL' 'OCED'
 ```
 
 After the command above have run, you will have to input the following:
@@ -37,7 +37,7 @@ To get a JSON output, you will need to do the same as for SQLite or mySQL, accor
 
 Example:
 ```bash
-python main.py ‘mySQL’  'myDB'  ‘OCED’  ‘jsonocel’
+python main.py ‘MySQL’  'myDB'  ‘OCED’  ‘jsonocel’
 ```
 
 ## Merged as input
